@@ -1,0 +1,7 @@
+*~
+*.pyc
+*/__pycache__
+/dist
+/dn3.egg.info
+test.py
+rebuild.sh
