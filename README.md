@@ -19,7 +19,7 @@ Library Dependency:
  ```py
   libc = ELF("./libc.so.6")
   io = process("./binary")
-  Deathnote(io, libc=libc) # Initialize deathnot3
+  DeathNot3(io, libc=libc) # Initialize deathnot3
   
   reu("yeet")              # equivalent of io.recvuntil()
   sl(b"leet")              # equivalent of io.sendline()
@@ -37,7 +37,7 @@ Library Dependency:
   # libc = unpack(io.recv(4),48) - libc.symbols.puts
   # log.info("Libc -> %s" % hex(libc)
   
-  interactive             # equivalent of io.interactive()
+  interactive()             # equivalent of io.interactive()
   ```
 
  - CLI
