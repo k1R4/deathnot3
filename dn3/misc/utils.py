@@ -2,6 +2,7 @@ from logging import getLogger
 from subprocess import DEVNULL, check_call
 from shutil import copy2, copystat, move
 import zstandard
+from time import sleep
 from os import getcwd
 
 logger = getLogger(__name__)
@@ -67,3 +68,7 @@ def extract_zst(file,dir,out):
 	zstd.copy_stream(file, tarball)
 	tarball.seek(0)
 	return tarball
+
+
+def msleep(x):
+	return sleep((1/1000)*x)

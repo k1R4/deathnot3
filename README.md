@@ -2,7 +2,12 @@ deathnot3
 ====
 
 ## Description
-A wrapper around ![pwntools](https://github.com/Gallopsled/pwntools) to help with bytes & strings mess caused by python3
+deathnot3 was created as a wrapper for pwntools, but with the addition of the "l1ght" submodule, it aims to be a more lightweight alternative to pwntools\
+while providing majority of the functionality. deathnot3 aims to:
+ - allow strings and bytes interchageably
+ - be more lightweight
+ - provide basic automation
+ - be an all around pwn helper for CTFs
 
 ## Requirements
 Supports: Python 3.6+
@@ -17,6 +22,9 @@ Library Dependency:
 ## Usage
 
  ```py
+  from dn3 import *
+  from pwn import ELF
+
   libc = ELF("./libc.so.6")
   io = process("./binary")
   DeathNot3(io, libc=libc) # Initialize deathnot3
@@ -27,14 +35,14 @@ Library Dependency:
   s("bruh")                # equivalent of io.send()
   # bytes, string and integers can be used interchageably to send
   
-  sl(pk64(0xdeadbeef)      # equivalent of p64() but returns string
-  sla("oof", flt([
+  sl(p64(0xdeadbeef))      # equivalent of p64() but returns string
+  sla("oof", flat([
 	  0xdeadbeef,"ABCD"    # equivalent of flat() but returns string
 	  ])
   
   libc = libcleak("puts")  # Offset integer can be given instead of symbol
   # Equivalent to
-  # libc = unpack(io.recv(4),48) - libc.symbols.puts
+  # libc = unpack(io.recv(6),48) - libc.symbols.puts
   # log.info("Libc -> %s" % hex(libc)
   
   interactive()             # equivalent of io.interactive()

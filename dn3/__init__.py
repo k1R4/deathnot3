@@ -1,6 +1,7 @@
 from dn3.pwn import *
 from dn3.misc import *
 from dn3.tools import *
+from dn3.l1ght import *
 from logging import getLogger, StreamHandler, Formatter, INFO, WARNING, ERROR
 from sys import exit, stderr
 

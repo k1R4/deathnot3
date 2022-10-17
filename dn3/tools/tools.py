@@ -1,4 +1,3 @@
-from pwn import *
 from dn3.config import template_url
 from dn3.misc.colors import *
 from dn3.misc.encoding import bytes2str
