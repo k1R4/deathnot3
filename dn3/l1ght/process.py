@@ -1,15 +1,15 @@
-from dn3.misc.encoding  import *
-from dn3.l1ght.context import *
-from dn3.misc.utils import msleep
+from dn3.l1ght.pipe import *
+from dn3.l1ght.context import context
 from logging import getLogger
 from subprocess import Popen, PIPE, STDOUT
 import os
 import fcntl
+import inspect
 
 logger = getLogger(__name__)
 
 
-class process():
+class process(pipe):
 
 
     def __init__(self,cmd):
@@ -27,144 +27,51 @@ class process():
             logger.error("File not found!")
 
         fd = self._process.stdout.fileno()
-        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+        flags = fcntl.fcntl(fd, fcntl.F_GETFL)
+        fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
 
         self._pid = self._process.pid
-        self._buf = None
+
+        super().__init__(self._process.stdout.read, self._process.stdin.write, self._process.stdin.flush)
+
         logger.info("Spawned process %s with PID: %d" % (self._cmd.split()[0],self._pid))
 
 
     def _poll(self):
 
-        if self._process.poll() is None and self._process.stdout.readable():
+        if self._process and self._process.poll() is None and self._process.stdout.readable():
             return True
         else:
-            logger.error("Process %s stopped with code: %d" % (self._cmd.split()[0],self._process.returncode))
+            if self._process:
+                returncode = self._process.returncode
+                self._process = None
+                logger.error("Process %s stopped with code: %d" % (self._cmd.split()[0],returncode))
+            return False
 
 
-    def recvall(self):
-        x = b""
-        consecutive_null = 0
-        while True:
-            try:
-                c = self._process.stdout.read(1)
-                if not c:
-                    consecutive_null += 1
-                    msleep(1)
-                    if consecutive_null > 3:
-                        break
-                else:
-                    x += c
-                    consecutive_null = 0
-            except:
-                break
-        if not x:
-            self._poll()
-
-        if context.log == DEBUG:
-            debug(x)
-
-        if context.mode == str:
-            x = bytes2str(x)
-        
-        return x
-
-
-    def recv(self,n):
-        while True:
-            x = self._process.stdout.read(n)
-            if not x:
-                self._poll()
-                msleep(1)
-            break
-        
-        if context.log == DEBUG:
-            debug(x)
-
-        if context.mode == str:
-            x = bytes2str(x)
-
-        return x
-
-
-    def recvuntil(self,x):
-        x = x2bytes(x)
-        t = b""
-
-        if not x:
-            logger.error("Invalid delimiter length!")
-
-        while True:
-            k = self._process.stdout.read(1)
-            if not k:
-                self._poll()
-                msleep(1)
-                continue
-
-            t += k
-            if t.find(x) != -1:
-                break
-        
-        if context.log == DEBUG:
-            debug(t)
-
-        if context.mode == str:
-            t = bytes2str(t)
-
-        return t
-
-
-    def recvline(self):
-        return self.recvuntil(b"\n")
-
-
-    def send(self,x):
-        x = x2bytes(x)
-
-        if not x:
-            logger.error("Invalid input")
-
-        if self._poll():
-            self._process.stdin.write(x)
-            self._process.stdin.flush()
-
-        if context.log == DEBUG:
-            debug(x, "Sent")
-
-
-    def sendline(self, x):
-        x = x2bytes(x) + b"\n"
-        self.send(x)
-
-
-    def sendafter(self, d, x):
-        self.recvuntil(d)
-        self.send(x)
-
-
-    def sendlineafter(self, d, x):
-        self.recvuntil(d)
-        self.sendline(x)
-
-    
     def kill(self):
+        if not self._process:
+            return
         self._process.kill()
+        self._process = None
         logger.info("Process %s with PID: %d was killed!" % (self._cmd.split()[0], self._pid))
 
 
     def interactive(self):
 
-        print(self.recvall(), flush=True)
+        context.mode = bytes
+        print(self.recvall().decode(), flush=True)
         while True:
             if self._poll():
                 try:
-                    print("$ ", end="", flush=True)
-                    self._process.stdin.write(str2bytes(input()+"\n"))
-                    self._process.stdin.flush()
+                    print("%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
+                    self.sendline(input())
                     if self._poll():
-                        print(self.recvall(), flush=True)
+                        print(self.recvall().decode(), flush=True)
                 except:
                     self.kill()
+                    return
+            else:
+                break
 
     

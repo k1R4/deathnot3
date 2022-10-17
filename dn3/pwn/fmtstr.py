@@ -1,4 +1,4 @@
-from dn3.misc.encoding import pk64, pk32
+from dn3.misc.encoding import p64, p32
 
 def bytecalc(x,y):
     return (x-y) & 0xff
@@ -32,7 +32,7 @@ def fmtstr64(addresses,values,offset=1,already_printed=0,prefix_size=0):
         f_values.extend(temp[::-1])
 
     for i in addresses:
-        f_addresses.extend([pk64(j) for j in range(i,i+8)])
+        f_addresses.extend([p64(j) for j in range(i,i+8)])
 
     for i in range(len(f_values)):
         if  f_values[i] != 0:
@@ -72,7 +72,7 @@ def dfmtstr64(addresses,values,offset=1,already_printed=0,prefix_size=0):
         f_values.extend(temp[::-1])
 
     for i in addresses:
-        f_addresses.extend([pk64(j) for j in range(i,i+8,2)])
+        f_addresses.extend([p64(j) for j in range(i,i+8,2)])
 
     for i in range(len(f_values)):
         if  f_values[i] != 0:
@@ -112,7 +112,7 @@ def fmtstr32(addresses,values,offset=1,already_printed=0,prefix_size=0):
         f_values.extend(temp[::-1])
 
     for i in addresses:
-        f_addresses.extend([pk32(j) for j in range(i,i+4)])
+        f_addresses.extend([p32(j) for j in range(i,i+4)])
 
     for i in range(len(f_values)):
         if  f_values[i] != 0:
@@ -152,7 +152,7 @@ def dfmtstr32(addresses,values,offset=1,already_printed=0,prefix_size=0):
         f_values.extend(temp[::-1])
 
     for i in addresses:
-        f_addresses.extend([pk32(j) for j in range(i,i+4,2)])
+        f_addresses.extend([p32(j) for j in range(i,i+4,2)])
 
     for i in range(len(f_values)):
         if  f_values[i] != 0:

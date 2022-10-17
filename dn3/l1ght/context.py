@@ -24,7 +24,7 @@ def debug(x, mode="Received"):
         j += 1
         if not j%27:
             if i >= 24:
-                print("  %s|%s  %s" % (BLUE, END, dotascii(bytes2str(x[i-24:i]))), end="")
+                print("  %s|%s  %s" % (BLUE, END, dotalnumsym(bytes2str(x[i-24:i]))), end="")
             print("\n        ", end="")
             continue
 
@@ -40,7 +40,7 @@ def debug(x, mode="Received"):
         print("  "*(27 - j%27 - 1), end="")
     else:
         k = 24
-    print("  %s|%s  %s" % (BLUE, END, dotascii(bytes2str(x[len(x)-k:len(x)]))))
+    print("  %s|%s  %s" % (BLUE, END, dotalnumsym(bytes2str(x[len(x)-k:len(x)]))))
 
     
 

@@ -3,12 +3,14 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-
 def ascii(x):
+	return "".join([i for i in x if ord(i) < 0x7f])
+
+def alnumsym(x):
 	return "".join([i for i in x if ord(i) > 0x20 and ord(i) < 0x7f])
 
 
-def dotascii(x):
+def dotalnumsym(x):
 	t = ""
 	for c in x:
 		if ord(c) > 0x21 and ord(c) < 0x7f:
@@ -94,7 +96,7 @@ def flat(x, arch="amd64"):
 	out = ""
 
 	if type(x) == list:
-		for i in list:
+		for i in x:
 			if type(i) == str:
 				out += i
 			elif type(i) == bytes:

@@ -2,8 +2,9 @@ deathnot3
 ====
 
 ## Description
-deathnot3 was created as a wrapper for pwntools, but with the addition of the "l1ght" submodule, it aims to be a more lightweight alternative to pwntools\
-while providing majority of the functionality. deathnot3 aims to:
+deathnot3 was created as a wrapper for pwntools, but with the addition of the "l1ght" submodule, it aims to be a more lightweight alternative to pwntools
+while providing majority of the essential functionality.
+deathnot3 aims to:
  - allow strings and bytes interchageably
  - be more lightweight
  - provide basic automation
