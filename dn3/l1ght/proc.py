@@ -1,30 +1,35 @@
 from dn3.l1ght.pipe import *
 from dn3.l1ght.context import context
+from dn3.misc.colors import *
+from dn3.misc.utils import msleep
 from logging import getLogger
 from subprocess import Popen, PIPE, STDOUT
 import os
 import fcntl
-import inspect
 
 logger = getLogger(__name__)
 
 
-class process(pipe):
+class proc(pipe):
 
 
     def __init__(self,cmd):
 
         self._cmd = cmd
-        if self._cmd.startswith("./"):
-            self._cmd = "%s/%s" % (os.getcwd(),self._cmd[2:])
+        if not self._cmd.startswith("/"):
+            if self._cmd.startswith("./"):
+                self._cmd = self._cmd[2:]
+            self._cmd = "%s/%s" % (os.getcwd(),self._cmd)
 
         try:
+            print(self._cmd)
             self._process = Popen(self._cmd.split(), 
                                     stdin = PIPE,
                                     stdout = PIPE,
-                                    stderr = STDOUT)
+                                    stderr = STDOUT,
+                                    cwd = os.getcwd())
         except:
-            logger.error("File not found!")
+            logger.error("File not found or insufficient permissions!")
 
         fd = self._process.stdout.fileno()
         flags = fcntl.fcntl(fd, fcntl.F_GETFL)
@@ -32,9 +37,56 @@ class process(pipe):
 
         self._pid = self._process.pid
 
-        super().__init__(self._process.stdout.read, self._process.stdin.write, self._process.stdin.flush)
+        super().__init__()
 
-        logger.info("Spawned process %s with PID: %d" % (self._cmd.split()[0],self._pid))
+        logger.info("Spawned process %s with PID: %s%d%s" % (self._cmd.split()[0],BOLD,self._pid,END))
+
+
+    def _read(self,n):
+        x = b""
+        while True:
+            x = self._process.stdout.read(n)
+            if not x and self._poll():
+                msleep(1)
+            else:
+                break
+        return x
+
+    
+    def _write(self,x):
+        self._process.stdin.write(x)
+        self._process.stdin.flush()  
+
+
+    def recvall(self):
+        x = b""
+        t = None
+        blocked = 0
+        while True:
+            try:
+                t = self._process.stdout.read(1)
+                if not t and blocked < 5:
+                    blocked += 1
+                    msleep(5)
+                elif blocked >= 5:
+                    break
+                else:
+                    x += t
+                    blocked = 0
+                    t = None
+            except:
+                break
+
+        if not x:
+            self._poll()
+
+        if context.log == DEBUG:
+            IO_debug(x)
+
+        if context.mode == str:
+            x = bytes2str(x)
+        
+        return x
 
 
     def _poll(self):
@@ -52,7 +104,7 @@ class process(pipe):
     def kill(self):
         if not self._process:
             return
-        self._process.kill()
+        self._process.terminate()
         self._process = None
         logger.info("Process %s with PID: %d was killed!" % (self._cmd.split()[0], self._pid))
 
@@ -75,3 +127,4 @@ class process(pipe):
                 break
 
     
+process = proc

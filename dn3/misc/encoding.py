@@ -85,9 +85,9 @@ def p16(x):
 
 def upk(x):
 	if type(x) == str:
-		return unpack("<Q",str2bytes((x[:8]).ljust("\x00",8)))
+		return unpack("<Q",str2bytes((x[:8]).ljust(8,"\x00")))
 	elif type(x) == bytes:
-		return unpack("<Q",(x[:8]).ljust(b""))
+		return unpack("<Q",(x[:8]).ljust(8,b"\x00"))
 	else:
 		logger.error("%s provided, string expected!" % type(x))
 

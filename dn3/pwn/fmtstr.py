@@ -1,5 +1,6 @@
 from dn3.misc.encoding import p64, p32
 
+
 def bytecalc(x,y):
     return (x-y) & 0xff
 

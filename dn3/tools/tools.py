@@ -1,6 +1,6 @@
-from dn3.config import template_url
 from dn3.misc.colors import *
 from dn3.misc.encoding import bytes2str
+from dn3.misc.utils import find_arch
 from dn3.misc.utils import *
 from logging import getLogger
 from os import getcwd,urandom
@@ -11,17 +11,15 @@ import re
 import unix_ar
 import tarfile
 
-from dn3.misc.utils import find_arch
 
 logger = getLogger(__name__)
 
 
 def gen_template(binary,libc=None,remote=None):
 
-	global template_url
-
+	from dn3.config import template_url
 	fname = input(f"{BOLD}({PURPLE}dn3{END}{BOLD}){END} Name of file (exp.py): ").rstrip("\n")
-	if fname == "y":
+	if fname == "y" or fname == "Y" or not fname:
 		fname = "exp.py"
 
 	if template_url[:6] == "local:":
@@ -35,7 +33,6 @@ def gen_template(binary,libc=None,remote=None):
 			logger.error("Error retrieving template!")
 
 	else:
-
 		r = requests.get(template_url)
 		if r.status_code not in range(200,300):
 			logger.error("Error retrieving template!")
@@ -234,7 +231,7 @@ class linkpatcher():
 
 		file = self.download(vanilla_pkg)
 		self.ld = self.get_file(file,"ld")
-		log.info(f"Found file in pkg: {self.ld}")
+		logger.info(f"Found file in pkg: {self.ld}")
 
 	def unstrip(self):
 		# todo
@@ -246,4 +243,4 @@ class linkpatcher():
 			logger.error("Unable to patch binary")
 		if not sh(f"patchelf --replace-needed libc.so.6 ./{self.libc} {self.binary}"):
 			logger.error("Unable to patch binary")
-		logger.log(50,"Patched binary!")
+		logger.log(50,"Patched binary!")	

@@ -1,8 +1,9 @@
 from dn3.l1ght.pipe import *
-from dn3.l1ght.context import context
+from dn3.l1ght.context import *
+from dn3.misc.colors import *
+from dn3.misc.utils import msleep
 from logging import getLogger
 import socket
-from sys import stdout
 import os
 import fcntl
 
@@ -11,7 +12,7 @@ logger = getLogger(__name__)
 
 class sock(pipe):
 
-    def __init__(self, host, port=None, timeout=10):
+    def __init__(self, host, port=None, timeout=800):
 
         try:
             if host.startswith("nc "):
@@ -38,43 +39,66 @@ class sock(pipe):
         flags = fcntl.fcntl(fd, fcntl.F_GETFL)
         fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
 
-        super().__init__(self._sock.recv, self._sock.send)
+        super().__init__()
+
+        logger.info("Opened connection to %s%s:%s%s" % (BOLD,self._host,self._port,END))
 
 
-    def _poll(self):
-        return True
+    def _read(self,n):
+        blocked = 0
+        while True:
+            try:
+                x = self._sock.recv(n)
+                if not x:
+                    raise Exception
+                else:
+                    return x
+            except BlockingIOError:
+                blocked += 1
+                if blocked <= 100:
+                    msleep(self._timeout//100)
+                    continue
+                else:
+                    logger.error("Connection timed out!")
+            except:
+                logger.error("Socket closed unexpectedly!")
 
 
-    # def recvall(self):
-    #     return self._pipe.recvall()
+    def _write(self,x):
+        try:
+            return self._sock.send(x)
+        except:
+            logger.error("Socket closed unexpectedly!")
 
 
-    # def recv(self,n):
-    #     return self._pipe.recv(n)
+    def recvall(self):
+        x = b""
+        t = None
+        blocked = 0
+        while True:
+            try:
+                t = self._sock.recv(1)
+                if not t:
+                    raise Exception
+                else:
+                    x += t
+            except BlockingIOError:
+                blocked += 1
+                if blocked <= 100:
+                    msleep(self._timeout//100)
+                    continue
+                else:
+                    break
+            except:
+                break
 
+        if context.log == DEBUG:
+            IO_debug(x)
 
-    # def recvuntil(self,x):
-    #     return self._pipe.recvuntil(x)
-
-
-    # def recvline(self):
-    #     return self._pipe.recvline()
-
-
-    # def send(self,x):
-    #     return self._pipe.send(x)
-
-
-    # def sendline(self, x):
-    #     return self._pipe.sendline(x)
-
-
-    # def sendafter(self, d, x):
-    #     return self._pipe.sendafter(d,x)
-
-
-    # def sendlineafter(self, d, x):
-    #     return self._pipe.sendlineafter(d,x)
+        if context.mode == str:
+            x = bytes2str(x)
+        
+        return x
 
 
     def kill(self):
@@ -94,4 +118,4 @@ class sock(pipe):
             except:
                 return self.kill()
 
-        
+remote = sock

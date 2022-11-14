@@ -2,11 +2,11 @@ deathnot3
 ====
 
 ## Description
-deathnot3 was created as a wrapper for pwntools, but with the addition of the "l1ght" submodule, it aims to be a more lightweight alternative to pwntools
-while providing majority of the essential functionality.
+deathnot3 was created as a wrapper for pwntools, but with the addition of the "l1ght" submodule, it aims to be a lightweight alternative to pwntools
+while providing majority of the essential functionality for exploit scripts.
 deathnot3 aims to:
  - allow strings and bytes interchageably
- - be more lightweight
+ - be lightweight
  - provide basic automation
  - be an all around pwn helper for CTFs
 
@@ -14,7 +14,6 @@ deathnot3 aims to:
 Supports: Python 3.6+
 
 Library Dependency:
-- pwntools
 - zstandard
 - unix_ar
 - requests
@@ -52,9 +51,12 @@ Library Dependency:
  - CLI
  
 	**`dn3 template <binary_path> -l <libc_path> -r <ip>:<port>`**
-	- used to generate template exploit on the go, based on a template format
-	 - edit config at root of installation, typically at `~/.local/lib/python3.x/site-packages/dn3/config.py` and specify template format url or path (if path prefix with `local:`)
-	 - [example template format](https://github.com/k1R4/Pwn/blob/main/dn3_template.py)
+	 - used to generate template exploit on the go, based on a template format
+	 - edit config using `dn3 config` and specify template format url or path (if path prefix with `local:`)
+	 - [example template format](https://raw.githubusercontent.com/k1R4/deathnot3/v1.0.0/template.py)
 	 
 	**`dn3 linker <binary_path> -l <libc_path>`**
-	 - Find appropriate dynamic linker (ld-linux-x86-64.so.2) for given libc and patch binary with it and provided libc using `patchelf`
+	 - Find appropriate dynamic linker for given libc and patch binary with it and provided libc using `patchelf`
+
+    **`dn3 config`**
+     - Edit dn3's config

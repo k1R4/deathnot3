@@ -1,7 +1,6 @@
 from pwn import ELF
 from dn3.misc.encoding import *
 from dn3.misc.utils import *
-from dn3.config import *
 from dn3 import l1ght
 from dn3.l1ght.context import context
 from logging import getLogger
@@ -20,8 +19,8 @@ class DeathNot3():
 		if context.binary == None:
 			logger.warn("(context.binary) has not been set")
 
-		if type(io) != l1ght.process.process and type(io) != l1ght.process.process:
-			logger.error("Tube provided isn't a l1ght process")
+		if type(io) != l1ght.proc and type(io) != l1ght.sock and type(io) != l1ght.debug:
+			logger.error("Pipe provided isn't a l1ght entity")
 
 		if libc != None and type(libc) != ELF:
 			logger.warn("Provided libc isn't a pwnlib ELF")

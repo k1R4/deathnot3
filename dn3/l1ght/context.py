@@ -6,7 +6,7 @@ DEBUG = 1
 L1GHT = 0
 
 
-def debug(x, mode="Received"):
+def IO_debug(x, mode="Received"):
     if not x:
         return
 

@@ -1,4 +1,3 @@
-pwntools
 zstandard
 unix_ar
 wget
