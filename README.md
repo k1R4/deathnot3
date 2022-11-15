@@ -14,6 +14,7 @@ deathnot3 aims to:
 Supports: Python 3.6+
 
 Library Dependency:
+- pwntools
 - zstandard
 - unix_ar
 - requests
@@ -25,7 +26,12 @@ Library Dependency:
   from dn3 import *
   from pwn import ELF
 
+  binary = ELF("./binary")
   libc = ELF("./libc.so.6")
+
+  context.mode = str      
+  # recv in string. Can also be set to bytes
+  
   io = process("./binary")
   DeathNot3(io, libc=libc) # Initialize deathnot3
   
@@ -58,5 +64,21 @@ Library Dependency:
 	**`dn3 linker <binary_path> -l <libc_path>`**
 	 - Find appropriate dynamic linker for given libc and patch binary with it and provided libc using `patchelf`
 
-    **`dn3 config`**
+    **`dn3 config <key(optional)>`**
      - Edit dn3's config
+     - Config is located at `~/.dn3.conf`
+
+## TODO
+ - [ ] Implement ELF similar to that of pwntools
+ - [ ] Implement buffering for process, remote
+ - [ ] Add automation
+    - [ ] static vulnerability detection
+    - [ ] ret2win
+    - [ ] ret2shellcode
+    - [ ] ret2libc/ROP
+    - [ ] tcache poisoning
+ - [ ] Add documentation to wiki
+ - [ ] Add support for big endian
+ - [ ] Add support for arm based architectures
+    - [ ] aarch64
+    - [ ] arm

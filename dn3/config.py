@@ -1,57 +1,106 @@
-from dn3.misc.colors import *
+from dn3.misc.utils import *
 from logging import getLogger
 import os
 
 logger = getLogger(__name__)
 
-config_path = "%s/.dn3.conf" % os.getenv('HOME')
 
-template_url = ""
-gdbport = 0
+class Config():
+    
 
-
-def config_handler():
-
-    global template_url
-    global gdbport
-
-    template_url = input(f"{BOLD}({PURPLE}dn3{END}{BOLD}){END} Template URL (default): ").rstrip("\n")
-    gdbport = input(f"{BOLD}({PURPLE}dn3{END}{BOLD}){END} GDBserver Port (1337): ").rstrip("\n")
-
-    if template_url == "y" or template_url == "Y" or not template_url:
-        template_url = "https://raw.githubusercontent.com/k1R4/deathnot3/v1.0.0/template.py"
-
-    if gdbport == "y" or gdbport == "Y" or not gdbport:
-        gdbport = 1337
-
-    f = open(config_path, "w+")
-    f.write("template_url = %s\ngdbport = %s\n" % (template_url,gdbport))
-    f.close()
+    def __init__(self):
+        self._path = "%s/.dn3.conf" % os.getenv("HOME")
+        self.keys = ["template", "gdbport", "timeout"]
+        self.vals = ["https://raw.githubusercontent.com/k1R4/deathnot3/dev/template.py", "1337", "800"]
+        self.read()
 
 
-def parse_config():
+    def create(self):
+        conf = ""
+        for i in range(len(self.keys)):
+            conf += "%s = %s\n" % (self.keys[i], self.vals[i])
+        f = open(self._path, "w+")
+        f.write(conf)
+        f.close()
 
-    global template_url
-    global gdbport
 
-    if not os.path.exists(config_path):
-        logger.info("Config doesn't exist, creating one!")
-        default_config = "template_url = https://raw.githubusercontent.com/k1R4/deathnot3/v1.0.0/template.py\ngdbport = 1337\n"
-        try:
-            open(config_path,"w+").write(default_config)
-        except:
-            logger.error("Unable to write config!")
+    def read(self):
+        if not os.path.exists(self._path):
+            self.create()
 
-    try:
-        f = open(config_path, "r")
-
+        f = open(self._path, "r")
         for i in f.readlines():
-            if i.startswith("template_url"):
-                template_url = (i.split()[2]).rstrip("\n")
-            elif i.startswith("gdbport"):
-                gdbport = int((i.split()[2]).rstrip("\n"))
-    except:
-        logger.error("Error parsing config file!")
+            key, _, val = i.rstrip("\n").split()
+            setattr(self, key, val)
 
-if not template_url or not gdbport:
-    parse_config()
+        for i in range(len(self.keys)):
+            try:
+                getattr(self, self.keys[i])
+            except:
+                setattr(self, self.keys[i], self.vals[i])
+        
+        f.close()
+    
+
+    def write(self, argv):
+        conf = ""
+
+        if len(argv) == 3:
+            f = open(self._path, "r+")
+            conf = f.read()
+            conf = conf.split("\n")[:-1]
+            f.close()
+
+            setattr(self, argv[2], dn3_prompt("%s: " % argv[2]))
+            if getattr(self, argv[2]) == "" and argv[2] not in self.keys:
+                delattr(self,argv[2])
+                for i in range(len(conf)):
+                    if argv[2] == conf[i].split()[0]:
+                        conf.remove(conf[i])
+                        conf = "\n".join(conf)+"\n"
+                        f = open(self._path, "w+")
+                        f.write(conf)
+                        f.close()
+                        return
+
+            for i in range(len(conf)):
+                if argv[2] == conf[i].split()[0]:
+                    conf[i] = "%s = %s" % (argv[2], getattr(self, argv[2]))
+                    f = open(self._path, "w+")
+                    f.write("\n".join(conf)+"\n")
+                    f.close()
+                    return
+
+            conf = "%s = %s\n" % (argv[2], getattr(self, argv[2]))
+            f = open(self._path, "a")
+            f.write(conf)
+            f.close()
+            return
+
+        else:
+            f = open(self._path, "r")
+            conf = f.read().split("\n")[:-1]
+            f.close()
+
+            for i in conf:
+                key, _, val = i.split()
+                if key not in self.keys:
+                    self.keys.append(key)
+                    self.vals.append(val)
+            conf = ""
+
+            for i in range(len(self.keys)):
+                fancy_i = self.keys[i].replace("_", " ").capitalize()
+                setattr(self, self.keys[i], dn3_prompt("%s (%s): " % (fancy_i,self.vals[i])))
+                
+                if getattr(self, self.keys[i]) in ["Y", "y", ""]:
+                    setattr(self, self.keys[i], self.vals[i])
+
+                conf += "%s = %s\n" % (self.keys[i],getattr(self, self.keys[i]))
+
+            f = open(self._path, "w+")
+            f.write(conf)
+            f.close()
+
+
+config = Config()

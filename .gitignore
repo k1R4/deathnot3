@@ -6,3 +6,4 @@
 /dn3.egg-info
 test.py
 rebuild.sh
+clean.sh

@@ -25,14 +25,14 @@ class CLIHandler():
 
 	def __init__(self):
 
-		if argv and len(argv) == 2:
+		if argv and len(argv) > 1:
 			if argv[1] == "config":
-				config_handler()
-		else:
-			args = self.argparse_handler()
+				config.write(argv)
 			
-			if args.mode == "template":
-				gen_template(args.binary,args.libc,args.remote)
+		args = self.argparse_handler()
+		
+		if args.mode == "template":
+			gen_template(args.binary,args.libc,args.remote)
 
-			elif args.mode == "linker":
-				linkpatcher(args.binary,args.libc)
+		elif args.mode == "linker":
+			linkpatcher(args.binary,args.libc)

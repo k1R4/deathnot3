@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from dn3 import *
 from pwn import ELF, asm, disasm
-from time import sleep
 
 exe = ELF("BINARY")
 l{
@@ -26,6 +25,6 @@ el}rif len(sys.argv) > 1 and sys.argv[1] == "-ng":
 else:
     io = debug(exe.path, gdbscript=breakpoints)
     
-DeathNot3(io,l{libc}l)
+DeathNot3(io)
 
 interactive()

@@ -40,6 +40,7 @@ class proc(pipe):
         super().__init__()
 
         logger.info("Spawned process %s with PID: %s%d%s" % (self._cmd.split()[0],BOLD,self._pid,END))
+        context.io = self
 
 
     def _read(self,n):

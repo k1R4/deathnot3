@@ -1,4 +1,5 @@
-zstandard
-unix_ar
-wget
-requests
+pwntools==4.7.0
+zstandard==0.18.0
+unix_ar==0.2.1
+wget==3.2
+requests==2.22.0

@@ -21,72 +21,72 @@ def dotalnumsym(x):
 		
 
 def x2str(x):
-	if type(x) == bytes:
+	if isinstance(x,bytes):
 		return bytes2str(x)
-	elif type(x) == int:
+	elif isinstance(x,int):
 		return str(x)
-	elif type(x) == str:
+	elif isinstance(x,str):
 		return x
 	else:
 		logger.error("%s provided, bytes/int/string expected!" % type(x))
 
 
 def x2bytes(x):
-	if type(x) == bytes:
+	if isinstance(x,bytes):
 		return x
-	elif type(x) == int:
+	elif isinstance(x,int):
 		return str2bytes(str(x))
-	elif type(x) == str:
+	elif isinstance(x,str):
 		return str2bytes(x)
 	else:
 		logger.error("%s provided, bytes/int/string expected!" % type(x))
 
 
 def str2bytes(x):
-	if type(x) == str:
+	if isinstance(x,str):
 		return bytes([ord(i) for i in x])
 	else:
 		logger.error("%s provided, string expected!" % type(x))
 
 
 def bytes2str(x):
-	if type(x) == bytes:
+	if isinstance(x,bytes):
 		return "".join([chr(i) for i in x])
 	else:
 		logger.error("%s provided, bytes expected!" % type(x))
 
 
 def pk(x):
-	if type(x) == int:
+	if isinstance(x,int):
 		return bytes2str(pack("<Q", x)).rstrip("\x00")
 	else:
 		logger.error("%s provided, int expected!" % type(x))
 
 
 def p64(x):
-	if type(x) == int:
+	if isinstance(x,int):
 		return bytes2str(pack("<Q", x))
 	else:
 		logger.error("%s provided, int expected!" % type(x))
 
 
 def p32(x):
-	if type(x) == int:
+	if isinstance(x,int):
 		return bytes2str(pack("<L",x))
 	else:
 		logger.error("%s provided, int expected!" % type(x))
 
 
 def p16(x):
-	if type(x) == int:
+	if isinstance(x,int):
 		return bytes2str(pack("<H",x))
 	else:
 		logger.error("%s provided, int expected!" % type(x))
 
 def upk(x):
-	if type(x) == str:
+	if isinstance(x,str):
 		return unpack("<Q",str2bytes((x[:8]).ljust(8,"\x00")))
-	elif type(x) == bytes:
+	elif isinstance(x,bytes):
 		return unpack("<Q",(x[:8]).ljust(8,b"\x00"))
 	else:
 		logger.error("%s provided, string expected!" % type(x))
@@ -95,13 +95,13 @@ def upk(x):
 def flat(x, arch="amd64"):
 	out = ""
 
-	if type(x) == list:
+	if isinstance(x,list):
 		for i in x:
-			if type(i) == str:
+			if isinstance(i,str):
 				out += i
-			elif type(i) == bytes:
+			elif isinstance(i,bytes):
 				out += bytes2str(i)
-			elif type(i) == int:
+			elif isinstance(i,int):
 				if arch == "amd64":
 					out += p64(i)
 				else:

@@ -12,17 +12,17 @@ deathnote = None
 
 class DeathNot3():
 
-	def __init__(self,io,libc=None):
+	def __init__(self,io=context.io,libc=context.libc):
 
 		global deathnote
 
 		if context.binary == None:
 			logger.warn("(context.binary) has not been set")
 
-		if type(io) != l1ght.proc and type(io) != l1ght.sock and type(io) != l1ght.debug:
+		if not isinstance(io, (l1ght.proc, l1ght.sock, l1ght.debug)):
 			logger.error("Pipe provided isn't a l1ght entity")
 
-		if libc != None and type(libc) != ELF:
+		if isinstance(libc, ELF):
 			logger.warn("Provided libc isn't a pwnlib ELF")
 
 		self.binary = context.binary
@@ -80,9 +80,9 @@ def libcleak(sym=0,length=6):
 	if dn3_libc_exists(deathnote):
 
 		leak = byteleak(length)
-		if type(sym) == str:
+		if isinstance(sym, str):
 			leak = leak - deathnote.libc.symbols[sym]
-		elif type(sym) == int:
+		elif isinstance(sym, int):
 			leak = leak - sym
 		else:
 			logger.error("Invalid symbol/offset provided")
@@ -96,9 +96,9 @@ def intlibcleak(sym=0,length=14):
 	if dn3_libc_exists(deathnote):
 
 		leak = intleak(length)
-		if type(sym) == str:
+		if isinstance(sym, str):
 			leak = leak - deathnote.libc.symbols[sym]
-		elif type(sym) == int:
+		elif isinstance(sym, int):
 			leak = leak - sym
 		else:
 			logger.error("Invalid symbol/offset provided")

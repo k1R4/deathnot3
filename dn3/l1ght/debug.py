@@ -2,7 +2,7 @@ from dn3.l1ght.pipe import *
 from dn3.l1ght.proc import *
 from dn3.l1ght.context import *
 from dn3.misc.colors import *
-from dn3.config import gdbport
+from dn3.config import config
 from logging import getLogger
 import string
 import random
@@ -13,7 +13,7 @@ logger = getLogger(__name__)
 
 class debug(proc):
 
-    def __init__(self, path, gdbscript="", port=gdbport):
+    def __init__(self, path, gdbscript="", port=config.gdbport):
 
         if not context.terminal:
             logger.error("context.terminal hasn't been set")
@@ -48,6 +48,7 @@ class debug(proc):
 
             self.recvline()
             logger.info("Recieved connection from GDB client!")
+            context.io = self
 
         except:
             logger.error("Failed to spawn terminal!")

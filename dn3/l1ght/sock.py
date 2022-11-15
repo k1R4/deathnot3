@@ -1,6 +1,7 @@
 from dn3.l1ght.pipe import *
 from dn3.l1ght.context import *
 from dn3.misc.colors import *
+from dn3.config import config
 from dn3.misc.utils import msleep
 from logging import getLogger
 import socket
@@ -12,7 +13,7 @@ logger = getLogger(__name__)
 
 class sock(pipe):
 
-    def __init__(self, host, port=None, timeout=800):
+    def __init__(self, host, port=None, timeout=int(config.timeout)):
 
         try:
             if host.startswith("nc "):
@@ -42,6 +43,7 @@ class sock(pipe):
         super().__init__()
 
         logger.info("Opened connection to %s%s:%s%s" % (BOLD,self._host,self._port,END))
+        context.io = self
 
 
     def _read(self,n):
@@ -117,5 +119,9 @@ class sock(pipe):
                 print(self.recvall().decode(), flush=True)
             except:
                 return self.kill()
+
+
+    def settimeout(self,n):
+        self._timeout = n
 
 remote = sock

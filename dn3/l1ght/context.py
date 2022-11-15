@@ -51,7 +51,9 @@ class Context():
     def __init__(self):
         self.log = DEBUG
         self.arch = "amd64"
+        self.io = None
         self.binary = None
+        self.libc = None
         self.aslr = True
         self.mode = str
         self.terminal = ""

@@ -1,3 +1,4 @@
+from dn3.misc.colors import *
 from logging import getLogger
 from subprocess import DEVNULL, check_call
 from shutil import copy2, copystat, move
@@ -72,3 +73,7 @@ def extract_zst(file,dir,out):
 
 def msleep(x):
 	return sleep((1/1000)*x)
+
+
+def dn3_prompt(x):
+	return input("%s(%sdn3%s%s)%s %s" % (BOLD,PURPLE,END,BOLD,END,x)).rstrip("\n")

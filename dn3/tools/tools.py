@@ -2,6 +2,7 @@ from dn3.misc.colors import *
 from dn3.misc.encoding import bytes2str
 from dn3.misc.utils import find_arch
 from dn3.misc.utils import *
+from dn3.config import config
 from logging import getLogger
 from os import getcwd,urandom
 from binascii import hexlify
@@ -17,8 +18,8 @@ logger = getLogger(__name__)
 
 def gen_template(binary,libc=None,remote=None):
 
-	from dn3.config import template_url
-	fname = input(f"{BOLD}({PURPLE}dn3{END}{BOLD}){END} Name of file (exp.py): ").rstrip("\n")
+	template_url = config.template
+	fname = dn3_prompt("Name of file (exp.py): ")
 	if fname == "y" or fname == "Y" or not fname:
 		fname = "exp.py"
 
@@ -97,8 +98,8 @@ class linkpatcher():
 			self.patch_binary()
 			sh(f"rm -r {self.cwd}")
 		except Exception as e:
-			#if sh(f"ls {self.cwd}"):
-			#	sh(f"rm -r {self.cwd}")
+			if sh(f"ls {self.cwd}"):
+				sh(f"rm -r {self.cwd}")
 			logger.error(e)
 
 
@@ -154,7 +155,7 @@ class linkpatcher():
 		try:
 			file = wget.download(url, out=self.cwd)
 			print()
-			logger.info(f"Dowloaded PKG: {url.split('/')[-1]}")
+			logger.info(f"Dowloaded pkg: {url.split('/')[-1]}")
 			return file
 		except:
 			logger.error("Failed to download pkg")
@@ -232,6 +233,7 @@ class linkpatcher():
 		file = self.download(vanilla_pkg)
 		self.ld = self.get_file(file,"ld")
 		logger.info(f"Found file in pkg: {self.ld}")
+
 
 	def unstrip(self):
 		# todo
