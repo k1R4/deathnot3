@@ -27,12 +27,12 @@ class CLIHandler():
 
 		if argv and len(argv) > 1:
 			if argv[1] == "config":
-				config.write(argv)
+				return config.write(argv)
 			
 		args = self.argparse_handler()
 		
 		if args.mode == "template":
-			gen_template(args.binary,args.libc,args.remote)
+			TemplateGenerator(args.binary,args.libc,args.remote)
 
 		elif args.mode == "linker":
-			linkpatcher(args.binary,args.libc)
+			LinkerPatcher(args.binary,args.libc)

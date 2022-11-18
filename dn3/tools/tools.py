@@ -8,7 +8,6 @@ from os import getcwd,urandom
 from binascii import hexlify
 import requests
 import wget
-import re
 import unix_ar
 import tarfile
 
@@ -16,69 +15,86 @@ import tarfile
 logger = getLogger(__name__)
 
 
-def gen_template(binary,libc=None,remote=None):
+class TemplateGenerator():
 
-	template_url = config.template
-	fname = dn3_prompt("Name of file (exp.py): ")
-	if fname == "y" or fname == "Y" or not fname:
-		fname = "exp.py"
+	def __init__(self, binary, libc=None, remote=None):
+		self.binary = binary
+		self.libc = libc
+		self.remote = remote
+		self.url = config.template
+		self.path = dn3_prompt("Name of file (exp.py): ")
+		self.template = ""
 
-	if template_url[:6] == "local:":
+		if self.path in ["y", "Y", ""]:
+			self.path = "exp.py"
 
-		try:
-			template_url = template_url[6:]
-			f = open(template_url,"r",encoding="utf-8")
-			template = f.read()
-			f.close()
-		except:
-			logger.error("Error retrieving template!")
-
-	else:
-		r = requests.get(template_url)
-		if r.status_code not in range(200,300):
-			logger.error("Error retrieving template!")
-		template = r.text
+		self.get_template()
+		self.parse_template()
+		self.write_template()
 
 
-	template = template.replace("BINARY", f"./{binary}")
+	def get_template(self):
+		if self.url.startswith("file://"):
+			self.url = self.template[7:]
+			try:
+				f = open(self.url, "r")
+				self.template = f.read()
+				f.close()
+				return
+			except:
+				logger.error("Error retrieving local template")
+
+		else:
+			r = requests.get(self.url)
+			if r.status_code not in range(200,300):
+				logger.error("Error retrieving template!")
+			self.template = r.text
+			return
 
 
-	if libc != None:
+	def parse_template(self):
+		self.template.replace("BINARY", self.binary)
+		
+		if not self.libc:
+			while True:
+				idx = (self.template.find("l{"),self.template.find("}l"))
+				if idx[0] < 0 or idx[1] < 0:
+					break
+				if idx[0] > idx[1]:
+					logger.error("Invalid libc tags in template!")
+				self.template = self.template[:idx[0]] + self.template[idx[1]+2:]
+		else:
+			self.template.replace("l{", "")
+			self.template.replace("}l", "")
+			self.template.replace("LIBC", self.libc)
 
-			template = template.replace("LIBC", f"./{libc}").replace("l{", "").replace("}l", "")
+		if not self.remote:
+			while True:
+				idx = (self.template.find("r{"),self.template.find("}r"))
+				if idx[0] < 0 or idx[1] < 0:
+					break
+				if idx[0] > idx[1]:
+					logger.error("Invalid remote tags in template!")
+				self.template = self.template[:idx[0]] + self.template[idx[1]+2:]
+		else:
+			self.template.replace("r{", "")
+			self.template.replace("}r", "")
+			try:
+				host, port = self.remote.split(":")
+				self.template.replace("HOST", host)
+				self.template.replace("PORT", port)
+			except:
+				logger.error("Invalid remote argument!")
+				
 
-	else:
-		try:
-			rgx = re.search("(?<=l{).*?(?=}l)",template,re.DOTALL)
-			template = template[:rgx.span()[0]-2] + template[rgx.span()[1]+2:]
-		except:
-			logger.error("Invalid template format!")
-
-
-	if remote != None:
-
-		ip,port = remote.split(":")
-		template = template.replace("IP", ip).replace("PORT", port).replace("r{", "").replace("}r", "")
-
-	else:
-		try:
-			rgx = re.search("(?<=r{).*?(?=}r)",template,re.DOTALL)
-			template = template[:rgx.span()[0]-2] + template[rgx.span()[1]+2:]
-		except:
-			logger.error("Invalid template format!")
-
-
-	try:
-		f = open(fname,"w")
-		f.write(template)
+	def write_template(self):
+		f = open(self.path, "w+")
+		f.write(self.template.rstrip("\n")+"\n")
 		f.close()
-		if sh(f"ls {fname}"):
-			logger.log(50,"Template generated!")
-	except:
-		logger.error(f"Writing template to {fname} failed!")
+		logger.info("Template generated!")
 
 
-class linkpatcher():
+class LinkerPatcher():
 
 	def __init__(self,binary,libc):
 
