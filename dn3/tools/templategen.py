@@ -19,8 +19,7 @@ class TemplateGenerator():
 		if self.path in ["y", "Y", ""]:
 			self.path = "exp.py"
 
-		#self.get_template()
-		self.template = open("/home/k1r4/Shared/pwn/template.py","r").read()
+		self.get_template()
 		self.parse_template()
 		self.write_template()
 
