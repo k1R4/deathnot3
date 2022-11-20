@@ -13,7 +13,7 @@ logger = getLogger(__name__)
 
 class debug(proc):
 
-    def __init__(self, path, gdbscript="", port=config.gdbport):
+    def __init__(self, path, gdbscript="", port=config.gdbport, env=None):
 
         if not context.terminal:
             logger.error("context.terminal hasn't been set")
@@ -28,7 +28,7 @@ class debug(proc):
         self._cmd += "localhost:%s %s" % (self._port, self._path)
 
         try:
-            super().__init__(self._cmd)
+            super().__init__(self._cmd, env=env)
             self.recvline()
             self.recvline()
             logger.info("GDBServer listening for connection on port %s%s%s" % (BOLD,self._port,END))

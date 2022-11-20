@@ -1,7 +1,7 @@
 from dn3.misc.colors import *
 from logging import getLogger
 from subprocess import DEVNULL, check_call
-from shutil import copy2, copystat, move
+from shutil import copy2, copystat
 import zstandard
 from time import sleep
 from os import getcwd

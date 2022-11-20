@@ -22,7 +22,7 @@ def cyclic(n=None, dict=pattern_dict):
     if not isinstance(n, int):
         logger.error("Integer expected!")
     if n > 8192:
-        logger.error("Size must not be greater than 4096")
+        logger.error("Size must not be greater than 8192")
     if n%4 != 0:
         logger.error("Size must be multiple of 4")
 

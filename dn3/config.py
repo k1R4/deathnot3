@@ -86,7 +86,7 @@ class Config():
                 delattr(self,argv[2])
 
         else:
-            for i in range(len(self.__dict__)):
+            for i in self.__dict__:
                 if i.startswith("_"):
                     continue
                 fancy_i = i.replace("_", " ").capitalize()

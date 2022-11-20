@@ -1,4 +1,5 @@
-from dn3.tools.tools import *
+from dn3.tools.linkerpatcher import *
+from dn3.tools.templategen import *
 from dn3.config import *
 from logging import getLogger
 from sys import argv
