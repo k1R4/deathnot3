@@ -6,6 +6,8 @@ from logging import getLogger
 from subprocess import Popen, PIPE, STDOUT
 import os
 import fcntl
+import tty
+import pty
 
 logger = getLogger(__name__)
 
@@ -13,7 +15,7 @@ logger = getLogger(__name__)
 class proc(pipe):
 
 
-    def __init__(self,cmd):
+    def __init__(self,cmd,env=None):
 
         self._cmd = cmd
         if not self._cmd.startswith("/"):
@@ -22,15 +24,29 @@ class proc(pipe):
             self._cmd = "%s/%s" % (os.getcwd(),self._cmd)
 
         try:
-            print(self._cmd)
+
+            master, self._slave = pty.openpty()
+            tty.setraw(master)
+            tty.setraw(self._slave)
+
+            if not env:
+                env = os.environ.copy()
+
             self._process = Popen(self._cmd.split(), 
                                     stdin = PIPE,
-                                    stdout = PIPE,
+                                    stdout = self._slave,
                                     stderr = STDOUT,
-                                    cwd = os.getcwd())
+                                    cwd = os.getcwd(),
+                                    env = env)
         except:
             logger.error("File not found or insufficient permissions!")
 
+        
+
+        if master:
+            self._process.stdout = os.fdopen(os.dup(master), 'r+b', 0)
+            os.close(master)
+        
         fd = self._process.stdout.fileno()
         flags = fcntl.fcntl(fd, fcntl.F_GETFL)
         fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
@@ -44,6 +60,8 @@ class proc(pipe):
 
 
     def _read(self,n):
+        if not self._process:
+            logger.error("Process Ended!")
         x = b""
         while True:
             x = self._process.stdout.read(n)

@@ -1,5 +1,6 @@
 from dn3.misc.colors import *
 from dn3.misc.encoding import *
+from dn3.config import config
 from binascii import hexlify
 
 DEBUG = 1
@@ -56,7 +57,7 @@ class Context():
         self.libc = None
         self.aslr = True
         self.mode = str
-        self.terminal = ""
+        self.terminal = config.terminal.split() if "terminal" in config.__dict__ else ""
 
 
 context = Context()

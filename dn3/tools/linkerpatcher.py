@@ -1,84 +1,17 @@
-from dn3.misc.colors import *
-from dn3.misc.encoding import bytes2str
-from dn3.misc.utils import find_arch
 from dn3.misc.utils import *
-from dn3.config import config
+from dn3.misc.encoding import *
 from logging import getLogger
 from os import getcwd,urandom
 from binascii import hexlify
 import requests
 import wget
-import re
 import unix_ar
 import tarfile
-
 
 logger = getLogger(__name__)
 
 
-def gen_template(binary,libc=None,remote=None):
-
-	template_url = config.template
-	fname = dn3_prompt("Name of file (exp.py): ")
-	if fname == "y" or fname == "Y" or not fname:
-		fname = "exp.py"
-
-	if template_url[:6] == "local:":
-
-		try:
-			template_url = template_url[6:]
-			f = open(template_url,"r",encoding="utf-8")
-			template = f.read()
-			f.close()
-		except:
-			logger.error("Error retrieving template!")
-
-	else:
-		r = requests.get(template_url)
-		if r.status_code not in range(200,300):
-			logger.error("Error retrieving template!")
-		template = r.text
-
-
-	template = template.replace("BINARY", f"./{binary}")
-
-
-	if libc != None:
-
-			template = template.replace("LIBC", f"./{libc}").replace("l{", "").replace("}l", "")
-
-	else:
-		try:
-			rgx = re.search("(?<=l{).*?(?=}l)",template,re.DOTALL)
-			template = template[:rgx.span()[0]-2] + template[rgx.span()[1]+2:]
-		except:
-			logger.error("Invalid template format!")
-
-
-	if remote != None:
-
-		ip,port = remote.split(":")
-		template = template.replace("IP", ip).replace("PORT", port).replace("r{", "").replace("}r", "")
-
-	else:
-		try:
-			rgx = re.search("(?<=r{).*?(?=}r)",template,re.DOTALL)
-			template = template[:rgx.span()[0]-2] + template[rgx.span()[1]+2:]
-		except:
-			logger.error("Invalid template format!")
-
-
-	try:
-		f = open(fname,"w")
-		f.write(template)
-		f.close()
-		if sh(f"ls {fname}"):
-			logger.log(50,"Template generated!")
-	except:
-		logger.error(f"Writing template to {fname} failed!")
-
-
-class linkpatcher():
+class LinkerPatcher():
 
 	def __init__(self,binary,libc):
 

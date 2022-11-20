@@ -1,4 +1,5 @@
-from dn3.tools.tools import *
+from dn3.tools.linkerpatcher import *
+from dn3.tools.templategen import *
 from dn3.config import *
 from logging import getLogger
 from sys import argv
@@ -27,12 +28,12 @@ class CLIHandler():
 
 		if argv and len(argv) > 1:
 			if argv[1] == "config":
-				config.write(argv)
+				return config.write(argv)
 			
 		args = self.argparse_handler()
 		
 		if args.mode == "template":
-			gen_template(args.binary,args.libc,args.remote)
+			TemplateGenerator(args.binary,args.libc,args.remote)
 
 		elif args.mode == "linker":
-			linkpatcher(args.binary,args.libc)
+			LinkerPatcher(args.binary,args.libc)

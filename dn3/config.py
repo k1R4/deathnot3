@@ -1,4 +1,5 @@
 from dn3.misc.utils import *
+from dn3.misc.encoding import *
 from logging import getLogger
 import os
 
@@ -6,101 +7,95 @@ logger = getLogger(__name__)
 
 
 class Config():
+
+
+    def __setattr__(self,key,value):
+        if value == "":
+            try:
+                getattr(self,key)
+                return delattr(self,key)
+            except:
+                return
+        self.__dict__[key] = value
+        if not self._lock:
+            self.update()
     
+    def __delattr__(self,key):
+        del self.__dict__[key]
+        if not self._lock:
+            self.update()
+
 
     def __init__(self):
+        self._lock = 1
         self._path = "%s/.dn3.conf" % os.getenv("HOME")
-        self.keys = ["template", "gdbport", "timeout"]
-        self.vals = ["https://raw.githubusercontent.com/k1R4/deathnot3/dev/template.py", "1337", "800"]
+        self._defaults = {"template": "https://raw.githubusercontent.com/k1R4/deathnot3/dev/template.py",
+                          "gdbport" : "1337", 
+                          "timeout" : "800"}
         self.read()
+        self._lock = 0
 
 
-    def create(self):
-        conf = ""
-        for i in range(len(self.keys)):
-            conf += "%s = %s\n" % (self.keys[i], self.vals[i])
-        f = open(self._path, "w+")
-        f.write(conf)
-        f.close()
-
-
-    def read(self):
-        if not os.path.exists(self._path):
-            self.create()
-
-        f = open(self._path, "r")
-        for i in f.readlines():
-            key, _, val = i.rstrip("\n").split()
-            setattr(self, key, val)
-
-        for i in range(len(self.keys)):
-            try:
-                getattr(self, self.keys[i])
-            except:
-                setattr(self, self.keys[i], self.vals[i])
-        
-        f.close()
-    
-
-    def write(self, argv):
-        conf = ""
-
-        if len(argv) == 3:
-            f = open(self._path, "r+")
-            conf = f.read()
-            conf = conf.split("\n")[:-1]
-            f.close()
-
-            setattr(self, argv[2], dn3_prompt("%s: " % argv[2]))
-            if getattr(self, argv[2]) == "" and argv[2] not in self.keys:
-                delattr(self,argv[2])
-                for i in range(len(conf)):
-                    if argv[2] == conf[i].split()[0]:
-                        conf.remove(conf[i])
-                        conf = "\n".join(conf)+"\n"
-                        f = open(self._path, "w+")
-                        f.write(conf)
-                        f.close()
-                        return
-
-            for i in range(len(conf)):
-                if argv[2] == conf[i].split()[0]:
-                    conf[i] = "%s = %s" % (argv[2], getattr(self, argv[2]))
-                    f = open(self._path, "w+")
-                    f.write("\n".join(conf)+"\n")
-                    f.close()
-                    return
-
-            conf = "%s = %s\n" % (argv[2], getattr(self, argv[2]))
-            f = open(self._path, "a")
-            f.write(conf)
-            f.close()
-            return
-
-        else:
-            f = open(self._path, "r")
-            conf = f.read().split("\n")[:-1]
-            f.close()
-
-            for i in conf:
-                key, _, val = i.split()
-                if key not in self.keys:
-                    self.keys.append(key)
-                    self.vals.append(val)
+    def update(self):
+        try:
             conf = ""
-
-            for i in range(len(self.keys)):
-                fancy_i = self.keys[i].replace("_", " ").capitalize()
-                setattr(self, self.keys[i], dn3_prompt("%s (%s): " % (fancy_i,self.vals[i])))
-                
-                if getattr(self, self.keys[i]) in ["Y", "y", ""]:
-                    setattr(self, self.keys[i], self.vals[i])
-
-                conf += "%s = %s\n" % (self.keys[i],getattr(self, self.keys[i]))
-
+            for i in self.__dict__:
+                if i.startswith("_"):
+                    continue
+                conf += "%s = %s\n" % (i, self.__dict__[i])
             f = open(self._path, "w+")
             f.write(conf)
             f.close()
+        except Exception as e:
+            print(e)
+            return
+
+
+    def setdefaults(self):
+        for key,val in self._defaults.items():
+            try:
+                getattr(self,key)
+            except:
+                setattr(self,key,val)
+
+
+    def read(self):
+        self._lock = 1
+
+        self.setdefaults()
+
+        if not os.path.exists(self._path):
+            self._lock = 0
+            return
+
+        f = open(self._path, "r")
+        for i in f.readlines():
+            i  = i.rstrip("\n").split()
+            key, val = i[0], " ".join(i[2:])
+            setattr(self, key, val)
+        f.close()
+        self._lock = 0
+    
+
+    def write(self, argv):
+        self._lock = 1
+
+        if len(argv) == 3:
+            setattr(self, argv[2], dn3_prompt("%s: " % argv[2]))
+            if getattr(self, argv[2]) == "" and argv[2] not in self.keys:
+                delattr(self,argv[2])
+
+        else:
+            for i in self.__dict__:
+                if i.startswith("_"):
+                    continue
+                fancy_i = i.replace("_", " ").capitalize()
+                setattr(self, i, dn3_prompt("%s (%s): " % (fancy_i,self.__dict__[i])))
+                
+                if getattr(self, i) in ["Y", "y", ""]:
+                    setattr(self, i, self.vals[i])
+
+        self._lock = 0
 
 
 config = Config()

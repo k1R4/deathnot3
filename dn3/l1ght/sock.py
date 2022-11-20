@@ -47,6 +47,8 @@ class sock(pipe):
 
 
     def _read(self,n):
+        if not self._sock:
+            logger.error("Socket closed!")
         blocked = 0
         while True:
             try:
@@ -67,6 +69,8 @@ class sock(pipe):
 
 
     def _write(self,x):
+        if not self._sock:
+            logger.error("Socket closed!")
         try:
             return self._sock.send(x)
         except:
@@ -105,6 +109,7 @@ class sock(pipe):
 
     def kill(self):
         self._sock.close()
+        self._sock = None
         logger.error("Connection closed to %s:%s" % (self._host,self._port))
 
 
