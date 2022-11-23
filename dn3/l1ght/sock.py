@@ -1,7 +1,7 @@
 from dn3.l1ght.pipe import *
 from dn3.l1ght.context import *
 from dn3.misc.colors import *
-from dn3.config import config
+from dn3.tools.config import config
 from dn3.misc.utils import msleep
 from logging import getLogger
 import socket

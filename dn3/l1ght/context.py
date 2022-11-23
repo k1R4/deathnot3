@@ -1,10 +1,10 @@
 from dn3.misc.colors import *
 from dn3.misc.encoding import *
-from dn3.config import config
+from dn3.tools.config import config
 from binascii import hexlify
 
 DEBUG = 1
-L1GHT = 0
+INFO = 0
 
 
 def IO_debug(x, mode="Received"):

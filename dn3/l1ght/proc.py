@@ -131,14 +131,22 @@ class proc(pipe):
     def interactive(self):
 
         context.mode = bytes
-        print(self.recvall().decode(), flush=True)
+        x = self.recvall()
+        try:
+            print(x.decode(), flush=True)
+        except:
+            print(x2str(x), flush=True)
         while True:
             if self._poll():
                 try:
                     print("%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
                     self.sendline(input())
                     if self._poll():
-                        print(self.recvall().decode(), flush=True)
+                        x = self.recvall()
+                        try:
+                            print(x.decode(), flush=True)
+                        except:
+                            print(x2str(x), flush=True)
                 except:
                     self.kill()
                     return
