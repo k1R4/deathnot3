@@ -1,6 +1,7 @@
 from dn3.tools.linkerpatcher import *
 from dn3.tools.templategen import *
-from dn3.config import *
+from dn3.tools.config import *
+from dn3.pwn.cyclic import *
 from logging import getLogger
 from sys import argv
 import argparse
@@ -37,3 +38,6 @@ class CLIHandler():
 
 		elif args.mode == "linker":
 			LinkerPatcher(args.binary,args.libc)
+
+		elif args.mode == "cyclic":
+			CyclicHandler(args.binary)

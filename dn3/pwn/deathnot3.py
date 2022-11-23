@@ -22,8 +22,8 @@ class DeathNot3():
 		if not isinstance(io, (l1ght.proc, l1ght.sock, l1ght.debug)):
 			logger.error("Pipe provided isn't a l1ght entity")
 
-		if isinstance(libc, ELF):
-			logger.warn("Provided libc isn't a pwnlib ELF")
+		if libc and not isinstance(libc, ELF):
+			logger.error("Provided libc isn't a pwnlib ELF")
 
 		self.binary = context.binary
 		self.io = io
@@ -33,7 +33,7 @@ class DeathNot3():
 		logger.info("deathnot3 has been initialized!")
 
 
-def rec(n):
+def re(n):
 	if dn3_exists(deathnote):
 		return deathnote.io.recv(n)
 
@@ -69,10 +69,12 @@ def interactive():
 		return
 
 def intleak(length=14):
-	return int(deathnote.io.recv(length),16)
+	return int(x2str(deathnote.io.recv(length)),16)
 
 def byteleak(length=6):
-	return unpack(str2bytes(deathnote.io.recv(length)),length*8)
+	if length > 8:
+		logger.error("Maximum leak size can only be 8 bytes!")
+	return upk(deathnote.io.recv(length))
 
 
 def libcleak(sym=0,length=6):

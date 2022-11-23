@@ -1,4 +1,4 @@
-from dn3.config import *
+from dn3.tools.config import *
 from dn3.pwn import *
 from dn3.misc import *
 from dn3.tools import *

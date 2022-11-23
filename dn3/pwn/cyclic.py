@@ -1,4 +1,6 @@
+from dn3.misc.encoding import *
 from logging import getLogger
+from binascii import unhexlify
 
 logger = getLogger(__name__)
 
@@ -39,10 +41,26 @@ def cyclic(n=None, dict=pattern_dict):
 
 
 def cyclic_find(x, dict=pattern_dict):
+    if isinstance(x,int):
+        x = unhexlify(hex(x)[2:])
+    x = x2str(x)
     if not isinstance(x, str) or len(x) != 4:
         logger.error("String of length 4 expected!")
+    x = x[::-1]
     offset = cyclic(8192,dict).find(x) 
     if offset == -1:
         logger.error("Invalid pattern!")
     else:
         return offset
+
+
+def CyclicHandler(arg):
+    try:
+        arg = int(arg)
+    except:
+        if arg.startswith("0x"):
+            arg = unhexlify(arg[2:])
+    if isinstance(arg,(bytes,str)):
+        logger.info("Offset: %s" % cyclic_find(arg))
+    elif isinstance(arg,int):
+        print(cyclic(arg))

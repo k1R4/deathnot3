@@ -1,4 +1,4 @@
-from dn3.config import config
+from dn3.tools.config import config
 from dn3.misc import dn3_prompt
 from logging import getLogger
 import requests

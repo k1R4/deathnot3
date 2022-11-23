@@ -83,11 +83,12 @@ def p16(x):
 	else:
 		logger.error("%s provided, int expected!" % type(x))
 
+
 def upk(x):
 	if isinstance(x,str):
-		return unpack("<Q",str2bytes((x[:8]).ljust(8,"\x00")))
+		return unpack("<Q",str2bytes((x[:8]).ljust(8,"\x00")))[0]
 	elif isinstance(x,bytes):
-		return unpack("<Q",(x[:8]).ljust(8,b"\x00"))
+		return unpack("<Q",(x[:8]).ljust(8,b"\x00"))[0]
 	else:
 		logger.error("%s provided, string expected!" % type(x))
 

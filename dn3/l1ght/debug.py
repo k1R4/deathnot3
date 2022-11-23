@@ -2,7 +2,7 @@ from dn3.l1ght.pipe import *
 from dn3.l1ght.proc import *
 from dn3.l1ght.context import *
 from dn3.misc.colors import *
-from dn3.config import config
+from dn3.tools.config import config
 from logging import getLogger
 import string
 import random
@@ -22,12 +22,13 @@ class debug(proc):
 
         self._path = path
         self._port = port
-        self._cmd = "/bin/gdbserver "
+        self._cmd = "/bin/gdbserver --once "
         if context.aslr:
             self._cmd += "--no-disable-randomization "
         self._cmd += "localhost:%s %s" % (self._port, self._path)
 
         try:
+
             super().__init__(self._cmd, env=env)
             self.recvline()
             self.recvline()

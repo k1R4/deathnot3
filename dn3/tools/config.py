@@ -10,7 +10,7 @@ class Config():
 
 
     def __setattr__(self,key,value):
-        if value == "":
+        if value == "" and key not in self._defaults.keys():
             try:
                 getattr(self,key)
                 return delattr(self,key)
@@ -31,7 +31,8 @@ class Config():
         self._path = "%s/.dn3.conf" % os.getenv("HOME")
         self._defaults = {"template": "https://raw.githubusercontent.com/k1R4/deathnot3/dev/template.py",
                           "gdbport" : "1337", 
-                          "timeout" : "800"}
+                          "timeout" : "800",
+                          "terminal": "tmux new-window"}
         self.read()
         self._lock = 0
 
@@ -82,8 +83,6 @@ class Config():
 
         if len(argv) == 3:
             setattr(self, argv[2], dn3_prompt("%s: " % argv[2]))
-            if getattr(self, argv[2]) == "" and argv[2] not in self.keys:
-                delattr(self,argv[2])
 
         else:
             for i in self.__dict__:
