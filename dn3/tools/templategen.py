@@ -26,7 +26,7 @@ class TemplateGenerator():
 
 	def get_template(self):
 		if self.url.startswith("file://"):
-			self.url = self.template[7:]
+			self.url = self.url[7:]
 			try:
 				f = open(self.url, "r")
 				self.template = f.read()

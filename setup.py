@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name='dn3',
-    version='1.0.2',
+    version='1.0.3',
     description='Lightweight alternative to pwntools',
     long_description=long_description,
     long_description_content_type='text/markdown',
