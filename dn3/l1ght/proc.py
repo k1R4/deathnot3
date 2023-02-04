@@ -8,6 +8,9 @@ import os
 import fcntl
 import tty
 import pty
+import random
+import string
+import sys
 
 logger = getLogger(__name__)
 
@@ -152,6 +155,23 @@ class proc(pipe):
                     return
             else:
                 break
+
+
+    def debug(self,gdbscript=""):
+
+        try:
+            gdbscript = ("attach %s\n" % self._pid) + gdbscript.lstrip("\n").rstrip("\n") + "\n"
+            self._script = "".join(random.choice(string.ascii_letters) for _ in range(10))
+            self._script = "/tmp/%s" % self._script
+            f = open(self._script, "w+")
+            f.write(gdbscript)
+            f.close()
+
+            self._term = Popen(context.terminal + ["gdb","-x",self._script], stdout=sys.stdout, stdin=sys.stdin, stderr=sys.stderr)
+            msleep(200)
+
+        except:
+            logger.error("Failed to spawn terminal!")
 
     
 process = proc
