@@ -23,8 +23,8 @@ if len(sys.argv) > 1 and sys.argv[1] == "-r":
 el}rif len(sys.argv) > 1 and sys.argv[1] == "-ng":
     io = process(exe.path)
 else:
-    io = debug(exe.path, gdbscript=breakpoints)
+    io = gdb(exe.path, gdbscript=breakpoints)
     
 DeathNot3(iol{, libc=libc}l)
 
-interactive()
+shell()

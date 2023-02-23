@@ -16,7 +16,7 @@ class CLIHandler():
 		parser.add_argument("mode", help="""template/linker/interactive
 		template                ---> Automatic template generation
 		linker                  ---> Patch challenge binary with linker
-		interactive (or) i      ---> Open python interactive shell with dn3 imported
+		cfg                     ---> Edit config 
 		\n""")
 		parser.add_argument("binary", help="Path to challenge binary")
 		parser.add_argument("-l","--libc", help="Path to libc binary",metavar="")
@@ -28,8 +28,12 @@ class CLIHandler():
 	def __init__(self):
 
 		if argv and len(argv) > 1:
-			if argv[1] == "config":
-				return config.write(argv)
+			if argv[1] == "cfg":
+				if len(argv) == 2:
+					os.system("cat ~/.dn3.conf")
+					return
+				else:
+					return cfg.write(argv)
 			
 		args = self.argparse_handler()
 		

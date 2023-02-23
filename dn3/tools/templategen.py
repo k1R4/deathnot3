@@ -1,4 +1,4 @@
-from dn3.tools.config import config
+from dn3.tools.config import cfg
 from dn3.misc import dn3_prompt
 from logging import getLogger
 import requests
@@ -12,7 +12,7 @@ class TemplateGenerator():
 		self.binary = binary
 		self.libc = libc
 		self.remote = remote
-		self.url = config.template
+		self.url = cfg.template
 		self.path = dn3_prompt("Name of file (exp.py): ")
 		self.template = ""
 

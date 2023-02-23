@@ -1,7 +1,7 @@
 from dn3.l1ght.pipe import *
 from dn3.l1ght.proc import *
 from dn3.misc.colors import *
-from dn3.tools.config import config
+from dn3.tools.config import cfg
 from logging import getLogger
 import string
 import random
@@ -12,7 +12,7 @@ logger = getLogger(__name__)
 
 class debug(proc):
 
-    def __init__(self, path, gdbscript="", port=config.gdbport, env=None):
+    def __init__(self, path, gdbscript="", port=cfg.gdbport, env=None):
 
         if not ctx.terminal:
             logger.error("ctx.terminal hasn't been set")

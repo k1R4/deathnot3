@@ -1,6 +1,7 @@
 from dn3.misc.utils import *
 from dn3.misc.encoding import *
 from logging import getLogger
+from threading import Thread
 import os
 
 logger = getLogger(__name__)
@@ -33,8 +34,7 @@ class Config():
                           "gdbport" : "1337", 
                           "timeout" : "800",
                           "terminal": "tmux new-window"}
-        self.read()
-        self._lock = 0
+        self._thread = Thread(target=self.read(),args=(self,))
 
 
     def update(self):
@@ -97,4 +97,4 @@ class Config():
         self._lock = 0
 
 
-config = Config()
+cfg = Config()

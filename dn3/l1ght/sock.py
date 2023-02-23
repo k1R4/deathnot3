@@ -1,7 +1,7 @@
 from dn3.l1ght.pipe import *
 from dn3.l1ght.context import *
 from dn3.misc.colors import *
-from dn3.tools.config import config
+from dn3.tools.config import cfg
 from dn3.misc.utils import msleep
 from logging import getLogger
 import socket
@@ -13,7 +13,7 @@ logger = getLogger(__name__)
 
 class sock(pipe):
 
-    def __init__(self, host, port=None, timeout=int(config.timeout)):
+    def __init__(self, host, port=None, timeout=int(cfg.timeout)):
 
         try:
             if host.startswith("nc "):

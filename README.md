@@ -58,15 +58,15 @@ Library Dependency:
  
 	**`dn3 template <binary_path> -l <libc_path> -r <ip>:<port>`**
 	 - used to generate template exploit on the go, based on a template format
-	 - edit config using `dn3 config` and specify template format url or path (if path prefix with `local:`)
-	 - [example template format](https://raw.githubusercontent.com/k1R4/deathnot3/v1.0.0/template.py)
+	 - edit config using `dn3 cfg` and specify template format url or path (if path prefix with `local:`)
+	 - [example template format](https://raw.githubusercontent.com/k1R4/deathnot3/dev/template.py)
 	 
 	**`dn3 linker <binary_path> -l <libc_path>`**
 	 - Find appropriate dynamic linker for given libc and patch binary with it and provided libc using `patchelf`
 
-    **`dn3 config <key(optional)>`**
+    **`dn3 cfg <key(optional)>`**
      - Edit dn3's config
-     - Config is located at `~/.dn3.conf`
+     - config is located at `~/.dn3.conf`
 
 ## TODO
  - [ ] Implement ELF similar to that of pwntools

@@ -1,5 +1,5 @@
 from dn3.misc.colors import *
-from dn3.tools.config import config
+from dn3.tools.config import cfg
 
 
 class Context():
@@ -12,7 +12,7 @@ class Context():
         self.libc = None
         self.aslr = True
         self.mode = str
-        self.terminal = config.terminal.split() if "terminal" in config.__dict__ else ""
+        self.terminal = cfg.terminal.split() if "terminal" in cfg.__dict__ else ""
 
 
 ctx = Context()
