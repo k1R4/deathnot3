@@ -6,10 +6,10 @@ exe = ELF("BINARY")
 l{
 libc = ELF("LIBC")
 }l
-context.binary = exe
-context.terminal = "tmux new-window".split()
-#context.log = 0
-#context.aslr = False
+ctx.binary = exe
+ctx.terminal = "tmux new-window".split()
+#ctx.log = 0
+#ctx.aslr = False
 
 global io
 breakpoints = '''

@@ -15,15 +15,15 @@ class debug(proc):
 
     def __init__(self, path, gdbscript="", port=config.gdbport, env=None):
 
-        if not context.terminal:
-            logger.error("context.terminal hasn't been set")
-        elif type(context.terminal) != list:
-            logger.error("Expected context.terminal as list")
+        if not ctx.terminal:
+            logger.error("ctx.terminal hasn't been set")
+        elif type(ctx.terminal) != list:
+            logger.error("Expected ctx.terminal as list")
 
         self._path = path
         self._port = port
         self._cmd = "/bin/gdbserver --once "
-        if context.aslr:
+        if ctx.aslr:
             self._cmd += "--no-disable-randomization "
         self._cmd += "localhost:%s %s" % (self._port, self._path)
 
@@ -45,11 +45,11 @@ class debug(proc):
             f.write(gdbscript)
             f.close()
 
-            self._term = subprocess.Popen(context.terminal + ["gdb","-x",self._script], stdout=sys.stdout, stdin=sys.stdin, stderr=sys.stderr)
+            self._term = subprocess.Popen(ctx.terminal + ["gdb","-x",self._script], stdout=sys.stdout, stdin=sys.stdin, stderr=sys.stderr)
 
             self.recvline()
             logger.info("Recieved connection from GDB client!")
-            context.io = self
+            ctx.io = self
 
         except:
             logger.error("Failed to spawn terminal!")

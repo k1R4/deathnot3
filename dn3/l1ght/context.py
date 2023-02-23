@@ -60,4 +60,4 @@ class Context():
         self.terminal = config.terminal.split() if "terminal" in config.__dict__ else ""
 
 
-context = Context()
+ctx = Context()

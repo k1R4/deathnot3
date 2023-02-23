@@ -37,10 +37,10 @@ class pipe():
         
         x = self._read(n)
         
-        if context.log == DEBUG:
+        if ctx.log == DEBUG:
             IO_debug(x)
 
-        if context.mode == str:
+        if ctx.mode == str:
             x = bytes2str(x)
 
         return x
@@ -60,10 +60,10 @@ class pipe():
             if t.find(x) != -1:
                 break
         
-        if context.log == DEBUG:
+        if ctx.log == DEBUG:
             IO_debug(t)
 
-        if context.mode == str:
+        if ctx.mode == str:
             t = bytes2str(t)
         
         return t
@@ -81,7 +81,7 @@ class pipe():
 
         self._write(x)
 
-        if context.log == DEBUG:
+        if ctx.log == DEBUG:
             IO_debug(x, "Sent")
 
 

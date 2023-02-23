@@ -29,7 +29,7 @@ Library Dependency:
   binary = ELF("./binary")
   libc = ELF("./libc.so.6")
 
-  context.mode = str      
+  ctx.mode = str      
   # recv in string. Can also be set to bytes
   
   io = process("./binary")

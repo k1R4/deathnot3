@@ -1,8 +1,7 @@
 from pwn import ELF
 from dn3.misc.encoding import *
 from dn3.misc.utils import *
-from dn3 import l1ght
-from dn3.l1ght.context import context
+from dn3.l1ght.context import ctx
 from logging import getLogger
 import os
 
@@ -12,20 +11,26 @@ deathnote = None
 
 class DeathNot3():
 
-	def __init__(self,io=context.io,libc=context.libc):
+	def __init__(self,io=None,libc=None):
 
 		global deathnote
 
-		if context.binary == None:
-			logger.warn("(context.binary) has not been set")
+		if io == None:
+			io = ctx.io
 
-		if not isinstance(io, (l1ght.proc, l1ght.sock, l1ght.debug)):
-			logger.error("Pipe provided isn't a l1ght entity")
+		if libc == None:
+			libc = ctx.libc
+
+		if ctx.binary == None:
+			logger.warn("(ctx.binary) has not been set")
+
+		if not set(["recv","send","recvuntil","interactive"]).issubset(set(io.__dir__())):
+			logger.error("Pipe isn't supported")
 
 		if libc and not isinstance(libc, ELF):
 			logger.error("Provided libc isn't a pwnlib ELF")
 
-		self.binary = context.binary
+		self.binary = ctx.binary
 		self.io = io
 		self.libc = libc
 		deathnote = self
@@ -43,7 +48,7 @@ def reu(s):
 
 def rl():
 	if dn3_exists(deathnote):
-		return deathnote.io.recvline()
+		return deathnote.io.recvuntil("\n")
 
 def s(s):
 	if dn3_exists(deathnote):
@@ -51,17 +56,19 @@ def s(s):
 
 def sl(s):
 	if dn3_exists(deathnote):
-		return deathnote.io.sendline(s)
+		return deathnote.io.send(x2bytes(s)+b"\n")
 
 def sa(d,s):
 	if dn3_exists(deathnote):
-		return deathnote.io.sendafter(d,s)
+		deathnote.io.recvuntil(d)
+		return deathnote.io.send(s)
 
 def sla(d,s):
 	if dn3_exists(deathnote):
-		return deathnote.io.sendlineafter(d,s)
+		deathnote.io.recvuntil(d)
+		return deathnote.io.send(x2bytes(s)+b"\n")
 
-def interactive():
+def shell():
 	global deathnote
 	if dn3_exists(deathnote):
 		deathnote.io.interactive()
@@ -119,6 +126,6 @@ def unhexdump(name,delim):
 		f.close()
 		os.system(f"xxd -r /tmp/raw_hex > {name}", cwd=os.gewcwd())
 		exe = ELF(name)
-		context.binary = exe
+		ctx.binary = exe
 		deathnote.binary = exe
 		return exe

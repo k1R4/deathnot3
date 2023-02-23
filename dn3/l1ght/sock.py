@@ -43,7 +43,7 @@ class sock(pipe):
         super().__init__()
 
         logger.info("Opened connection to %s%s:%s%s" % (BOLD,self._host,self._port,END))
-        context.io = self
+        ctx.io = self
 
 
     def _read(self,n):
@@ -98,10 +98,10 @@ class sock(pipe):
             except:
                 break
 
-        if context.log == DEBUG:
+        if ctx.log == DEBUG:
             IO_debug(x)
 
-        if context.mode == str:
+        if ctx.mode == str:
             x = bytes2str(x)
         
         return x
@@ -115,7 +115,7 @@ class sock(pipe):
 
     def interactive(self):
 
-        context.mode = bytes
+        ctx.mode = bytes
         print(self.recvall().decode(), flush=True)
         while True:
             try:
