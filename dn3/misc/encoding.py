@@ -18,7 +18,14 @@ def dotalnumsym(x):
 		else:
 			t += "."
 	return t
-		
+
+
+def x2sb(x,mode=str):
+	if mode == str:
+		return x2str(x)
+	else:
+		return x2bytes(x)
+
 
 def x2str(x):
 	if isinstance(x,bytes):

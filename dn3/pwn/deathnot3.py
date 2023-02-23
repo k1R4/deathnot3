@@ -24,7 +24,7 @@ class DeathNot3():
 		if ctx.binary == None:
 			logger.warn("(ctx.binary) has not been set")
 
-		if not set(["recv","send","recvuntil","interactive"]).issubset(set(io.__dir__())):
+		if not set(["recv","recvline","recvuntil","send","sendline","sendafter","sendlineafter","interactive"]).issubset(set(io.__dir__())):
 			logger.error("Pipe isn't supported")
 
 		if libc and not isinstance(libc, ELF):
@@ -40,33 +40,31 @@ class DeathNot3():
 
 def re(n):
 	if dn3_exists(deathnote):
-		return deathnote.io.recv(n)
+		return x2sb(deathnote.io.recv(n),ctx.mode)
 
 def reu(s):
 	if dn3_exists(deathnote):
-		return deathnote.io.recvuntil(s)
+		return x2sb(deathnote.io.recvuntil(x2sb(s,ctx.mode)),ctx.mode)
 
 def rl():
 	if dn3_exists(deathnote):
-		return deathnote.io.recvuntil("\n")
+		return x2sb(deathnote.io.recvline(),ctx.mode)
 
 def s(s):
 	if dn3_exists(deathnote):
-		return deathnote.io.send(s)
+		return deathnote.io.send(x2sb(s,ctx.mode))
 
 def sl(s):
 	if dn3_exists(deathnote):
-		return deathnote.io.send(x2bytes(s)+b"\n")
+		return deathnote.io.sendline(x2sb(s,ctx.mode))
 
 def sa(d,s):
 	if dn3_exists(deathnote):
-		deathnote.io.recvuntil(d)
-		return deathnote.io.send(s)
+		return deathnote.io.sendafter(x2sb(d,ctx.mode),x2sb(s,ctx.mode))
 
 def sla(d,s):
 	if dn3_exists(deathnote):
-		deathnote.io.recvuntil(d)
-		return deathnote.io.send(x2bytes(s)+b"\n")
+		return deathnote.io.sendlineafter(x2sb(d,ctx.mode),x2sb(s,ctx.mode))
 
 def shell():
 	global deathnote

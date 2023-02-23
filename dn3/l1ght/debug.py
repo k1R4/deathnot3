@@ -1,6 +1,5 @@
 from dn3.l1ght.pipe import *
 from dn3.l1ght.proc import *
-from dn3.l1ght.context import *
 from dn3.misc.colors import *
 from dn3.tools.config import config
 from logging import getLogger
