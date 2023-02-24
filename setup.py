@@ -7,8 +7,8 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name='dn3',
-    version='1.0.2',
-    description='Lightweight alternative to pwntools',
+    version='1.1.0',
+    description='',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/k1R4/deathnot3/',
@@ -20,7 +20,7 @@ setup(
     ],
     keywords='pwn',
     python_requires='>=3.6, <4',
-    install_requires=['pwntools',
+    install_requires=['pyelftools',
                       'zstandard',
                       'unix_ar',
                       'wget',

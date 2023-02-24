@@ -1,31 +1,37 @@
-from pwn import ELF
 from dn3.misc.encoding import *
 from dn3.misc.utils import *
-from dn3 import l1ght
-from dn3.l1ght.context import context
+from dn3.l1ght.context import ctx
 from logging import getLogger
 import os
 
 logger = getLogger(__name__)
 
 deathnote = None
+pipe_attrs = ["recv","recvline","recvuntil","send","sendline","sendafter","sendlineafter","interactive"]
+elf_attrs = ["symbols","address"]
 
 class DeathNot3():
 
-	def __init__(self,io=context.io,libc=context.libc):
+	def __init__(self,io=None,libc=None):
 
 		global deathnote
 
-		if context.binary == None:
-			logger.warn("(context.binary) has not been set")
+		if io == None:
+			io = ctx.io
 
-		if not isinstance(io, (l1ght.proc, l1ght.sock, l1ght.debug)):
-			logger.error("Pipe provided isn't a l1ght entity")
+		if libc == None:
+			libc = ctx.libc
 
-		if libc and not isinstance(libc, ELF):
-			logger.error("Provided libc isn't a pwnlib ELF")
+		if ctx.binary == None:
+			logger.warn("(ctx.binary) has not been set")
 
-		self.binary = context.binary
+		if io and len([x for x in pipe_attrs if hasattr(io,x)]) != len(pipe_attrs):
+			logger.error("Provided pipe isn't supported")
+
+		if libc and len([x for x in elf_attrs if hasattr(libc,x)]):
+			logger.error("Provided elf isn't supported")
+
+		self.binary = ctx.binary
 		self.io = io
 		self.libc = libc
 		deathnote = self
@@ -35,33 +41,33 @@ class DeathNot3():
 
 def re(n):
 	if dn3_exists(deathnote):
-		return deathnote.io.recv(n)
+		return x2sb(deathnote.io.recv(n),ctx.mode)
 
 def reu(s):
 	if dn3_exists(deathnote):
-		return deathnote.io.recvuntil(s)
+		return x2sb(deathnote.io.recvuntil(x2sb(s,ctx.mode)),ctx.mode)
 
 def rl():
 	if dn3_exists(deathnote):
-		return deathnote.io.recvline()
+		return x2sb(deathnote.io.recvline(),ctx.mode)
 
 def s(s):
 	if dn3_exists(deathnote):
-		return deathnote.io.send(s)
+		return deathnote.io.send(x2sb(s,ctx.mode))
 
 def sl(s):
 	if dn3_exists(deathnote):
-		return deathnote.io.sendline(s)
+		return deathnote.io.sendline(x2sb(s,ctx.mode))
 
 def sa(d,s):
 	if dn3_exists(deathnote):
-		return deathnote.io.sendafter(d,s)
+		return deathnote.io.sendafter(x2sb(d,ctx.mode),x2sb(s,ctx.mode))
 
 def sla(d,s):
 	if dn3_exists(deathnote):
-		return deathnote.io.sendlineafter(d,s)
+		return deathnote.io.sendlineafter(x2sb(d,ctx.mode),x2sb(s,ctx.mode))
 
-def interactive():
+def shell():
 	global deathnote
 	if dn3_exists(deathnote):
 		deathnote.io.interactive()
@@ -113,12 +119,9 @@ def unhexdump(name,delim):
 
 	if dn3_exists(deathnote):
 
-		data = reu(delim)
+		data = x2str(reu(delim))
 		f = open("/tmp/raw_hex","w+")
 		f.write(data)
 		f.close()
 		os.system(f"xxd -r /tmp/raw_hex > {name}", cwd=os.gewcwd())
-		exe = ELF(name)
-		context.binary = exe
-		deathnote.binary = exe
-		return exe
+		return name

@@ -1,9 +1,28 @@
-deathnot3
-====
+DeathNot3
+===
+<p align="center">
+   <img src="https://media.discordapp.net/attachments/1015263562668720150/1078325086307766344/dn3_logo.png" height=256 width=256/>
+</p>
+
+[![pypi](https://img.shields.io/pypi/v/dn3?style=for-the-badge)](https://pypi.org/project/dn3/)
+![python-version](https://img.shields.io/pypi/pyversions/dn3?style=for-the-badge)
+![last-commit](https://img.shields.io/github/last-commit/k1R4/deathnot3/dev?style=for-the-badge)
+![build-status](https://img.shields.io/github/actions/workflow/status/k1R4/deathnot3/python-package.yml?style=for-the-badge)
+![license](https://img.shields.io/pypi/l/dn3?style=for-the-badge)
+[![twitter](https://img.shields.io/twitter/follow/justk1R4?style=for-the-badge)](https://twitter.com/justk1R4)
+
+## Installation
+```
+sudo apt-get update
+sudo apt-get install python3 python3-pip
+python3 -m pip install --upgrade dn3
+```
 
 ## Description
-deathnot3 was created as a wrapper for pwntools, but with the addition of the "l1ght" submodule, it aims to be a lightweight alternative to pwntools
-while providing majority of the essential functionality for exploit scripts.
+DeathNot3 is a one-for-all, all-for-one tool that aims to make solving CTF pwn challenges easier and faster. 
+
+deathnot3 was started as a wrapper for pwntools, but with the addition of the "l1ght" submodule, it has become a lightweight alternative to pwntools process/remote
+while providing additional functionality.
 deathnot3 aims to:
  - allow strings and bytes interchageably
  - be lightweight
@@ -14,7 +33,7 @@ deathnot3 aims to:
 Supports: Python 3.6+
 
 Library Dependency:
-- pwntools
+- pyelftools
 - zstandard
 - unix_ar
 - requests
@@ -24,16 +43,16 @@ Library Dependency:
 
  ```py
   from dn3 import *
-  from pwn import ELF
 
   binary = ELF("./binary")
   libc = ELF("./libc.so.6")
 
-  context.mode = str      
+  ctx.mode = str 
+  ctx.libc = libc     
   # recv in string. Can also be set to bytes
   
   io = process("./binary")
-  DeathNot3(io, libc=libc) # Initialize deathnot3
+  DeathNot3()              # Initialize deathnot3
   
   reu("yeet")              # equivalent of io.recvuntil()
   sl(b"leet")              # equivalent of io.sendline()
@@ -58,18 +77,19 @@ Library Dependency:
  
 	**`dn3 template <binary_path> -l <libc_path> -r <ip>:<port>`**
 	 - used to generate template exploit on the go, based on a template format
-	 - edit config using `dn3 config` and specify template format url or path (if path prefix with `local:`)
-	 - [example template format](https://raw.githubusercontent.com/k1R4/deathnot3/v1.0.0/template.py)
+	 - edit config using `dn3 cfg` and specify template format url or path (if path prefix with `local:`)
+	 - [example template format](https://raw.githubusercontent.com/k1R4/deathnot3/dev/template.py)
 	 
 	**`dn3 linker <binary_path> -l <libc_path>`**
 	 - Find appropriate dynamic linker for given libc and patch binary with it and provided libc using `patchelf`
 
-    **`dn3 config <key(optional)>`**
-     - Edit dn3's config
-     - Config is located at `~/.dn3.conf`
+   **`dn3 cfg <key(optional)>`**
+    - Edit dn3's config
+    - config is located at `~/.dn3.conf`
 
 ## TODO
- - [ ] Implement ELF similar to that of pwntools
+ - [x] Implement ELF similar to that of pwntools
+ - [ ] Add inline description comments for code
  - [ ] Implement buffering for process, remote
  - [ ] Add automation
     - [ ] static vulnerability detection

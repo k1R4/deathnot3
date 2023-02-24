@@ -77,3 +77,6 @@ def msleep(x):
 
 def dn3_prompt(x):
 	return input("%s(%sdn3%s%s)%s %s" % (BOLD,PURPLE,END,BOLD,END,x)).rstrip("\n")
+
+def pause():
+	return dn3_prompt("Press [Enter]")

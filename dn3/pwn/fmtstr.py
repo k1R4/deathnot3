@@ -1,5 +1,8 @@
 from dn3.misc.encoding import p64, p32
+from dn3.l1ght.context import ctx
+from logging import getLogger
 
+logger = getLogger(__name__)
 
 def bytecalc(x,y):
     return (x-y) & 0xff
@@ -15,6 +18,42 @@ def pad8(x,prefix_size=0):
 
 def pad4(x,prefix_size=0):
     return x+"A"*(4-(len(x)%4)-prefix_size)
+
+
+class FmtStrGen():
+
+    def __init__(self,arch=None):
+
+        if arch == None:
+            arch = ctx.arch
+        
+        self._arch = arch
+
+    def gen(self,addresses,values,offset=1,already_printed=0,prefix_size=0,target_size=4096):
+
+        if self._arch == "amd64":
+            payload = fmtstr64(addresses,values,offset,already_printed,prefix_size)
+            if len(payload) <= target_size:
+                return payload
+            payload = dfmtstr64(addresses,values,offset,already_printed,prefix_size)
+            if len(payload) <= target_size:
+                return payload
+            else:
+                logger.error("Couldn't fit target size")
+            
+        elif self._arch == "i386":
+            payload = fmtstr32(addresses,values,offset,already_printed,prefix_size)
+            if len(payload) <= target_size:
+                return payload
+            payload = dfmtstr32(addresses,values,offset,already_printed,prefix_size)
+            print(payload)
+            if len(payload) <= target_size:
+                return payload
+            else:
+                logger.error("Couldn't fit targret size")
+
+        else:
+            logger.error("Architecture not supported!")
 
 
 def fmtstr64(addresses,values,offset=1,already_printed=0,prefix_size=0):

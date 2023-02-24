@@ -1,5 +1,5 @@
 from dn3.l1ght.pipe import *
-from dn3.l1ght.context import context
+from dn3.l1ght.context import ctx
 from dn3.misc.colors import *
 from dn3.misc.utils import msleep
 from logging import getLogger
@@ -8,6 +8,9 @@ import os
 import fcntl
 import tty
 import pty
+import random
+import string
+import sys
 
 logger = getLogger(__name__)
 
@@ -56,7 +59,7 @@ class proc(pipe):
         super().__init__()
 
         logger.info("Spawned process %s with PID: %s%d%s" % (self._cmd.split()[0],BOLD,self._pid,END))
-        context.io = self
+        ctx.io = self
 
 
     def _read(self,n):
@@ -99,10 +102,10 @@ class proc(pipe):
         if not x:
             self._poll()
 
-        if context.log == DEBUG:
+        if ctx.log == DEBUG:
             IO_debug(x)
 
-        if context.mode == str:
+        if ctx.mode == str:
             x = bytes2str(x)
         
         return x
@@ -130,7 +133,7 @@ class proc(pipe):
 
     def interactive(self):
 
-        context.mode = bytes
+        ctx.mode = bytes
         x = self.recvall()
         try:
             print(x.decode(), flush=True)
@@ -152,6 +155,23 @@ class proc(pipe):
                     return
             else:
                 break
+
+
+    def debug(self,gdbscript=""):
+
+        try:
+            gdbscript = ("attach %s\n" % self._pid) + gdbscript.lstrip("\n").rstrip("\n") + "\n"
+            self._script = "".join(random.choice(string.ascii_letters) for _ in range(10))
+            self._script = "/tmp/%s" % self._script
+            f = open(self._script, "w+")
+            f.write(gdbscript)
+            f.close()
+
+            self._term = Popen(ctx.terminal + ["gdb","-x",self._script], stdout=sys.stdout, stdin=sys.stdin, stderr=sys.stderr)
+            msleep(200)
+
+        except:
+            logger.error("Failed to spawn terminal!")
 
     
 process = proc
