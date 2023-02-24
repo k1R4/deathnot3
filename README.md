@@ -33,7 +33,7 @@ deathnot3 aims to:
 Supports: Python 3.6+
 
 Library Dependency:
-- p
+- pyelftools
 - zstandard
 - unix_ar
 - requests
