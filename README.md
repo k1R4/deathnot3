@@ -7,8 +7,16 @@ DeathNot3
 [![pypi](https://img.shields.io/pypi/v/dn3?style=for-the-badge)](https://pypi.org/project/dn3/)
 ![python-version](https://img.shields.io/pypi/pyversions/dn3?style=for-the-badge)
 ![last-commit](https://img.shields.io/github/last-commit/k1R4/deathnot3/dev?style=for-the-badge)
+![build-status](https://img.shields.io/github/actions/workflow/status/k1R4/deathnot3/python-package.yml?style=for-the-badge)
 ![license](https://img.shields.io/pypi/l/dn3?style=for-the-badge)
 [![twitter](https://img.shields.io/twitter/follow/justk1R4?style=for-the-badge)](https://twitter.com/justk1R4)
+
+## Installation
+```
+sudo apt-get update
+sudo apt-get install python3 python3-pip
+python3 -m pip install --upgrade dn3
+```
 
 ## Description
 DeathNot3 is a one-for-all, all-for-one tool that aims to make solving CTF pwn challenges easier and faster. 
