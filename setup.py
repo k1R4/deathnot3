@@ -7,8 +7,8 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name='dn3',
-    version='1.1.0',
-    description='Lightweight alternative to pwntools',
+    version='1.1.0dev1',
+    description='',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/k1R4/deathnot3/',
