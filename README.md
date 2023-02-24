@@ -33,7 +33,7 @@ deathnot3 aims to:
 Supports: Python 3.6+
 
 Library Dependency:
-- pwntools
+- p
 - zstandard
 - unix_ar
 - requests
@@ -43,16 +43,16 @@ Library Dependency:
 
  ```py
   from dn3 import *
-  from pwn import ELF
 
   binary = ELF("./binary")
   libc = ELF("./libc.so.6")
 
-  ctx.mode = str      
+  ctx.mode = str 
+  ctx.libc = libc     
   # recv in string. Can also be set to bytes
   
   io = process("./binary")
-  DeathNot3(io, libc=libc) # Initialize deathnot3
+  DeathNot3()              # Initialize deathnot3
   
   reu("yeet")              # equivalent of io.recvuntil()
   sl(b"leet")              # equivalent of io.sendline()
@@ -88,7 +88,7 @@ Library Dependency:
     - config is located at `~/.dn3.conf`
 
 ## TODO
- - [ ] Implement ELF similar to that of pwntools
+ - [x] Implement ELF similar to that of pwntools
  - [ ] Add inline description comments for code
  - [ ] Implement buffering for process, remote
  - [ ] Add automation

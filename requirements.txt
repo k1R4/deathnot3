@@ -1,4 +1,4 @@
-pwntools==4.7.0
+pyelftools==0.29
 zstandard==0.18.0
 unix_ar==0.2.1
 wget==3.2

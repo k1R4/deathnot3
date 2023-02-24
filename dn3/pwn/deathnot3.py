@@ -1,4 +1,3 @@
-from pwn import ELF
 from dn3.misc.encoding import *
 from dn3.misc.utils import *
 from dn3.l1ght.context import ctx
@@ -8,6 +7,8 @@ import os
 logger = getLogger(__name__)
 
 deathnote = None
+pipe_attrs = ["recv","recvline","recvuntil","send","sendline","sendafter","sendlineafter","interactive"]
+elf_attrs = ["symbols","address"]
 
 class DeathNot3():
 
@@ -24,11 +25,11 @@ class DeathNot3():
 		if ctx.binary == None:
 			logger.warn("(ctx.binary) has not been set")
 
-		if not set(["recv","recvline","recvuntil","send","sendline","sendafter","sendlineafter","interactive"]).issubset(set(io.__dir__())):
-			logger.error("Pipe isn't supported")
+		if io and len([x for x in pipe_attrs if hasattr(io,x)]) != len(pipe_attrs):
+			logger.error("Provided pipe isn't supported")
 
-		if libc and not isinstance(libc, ELF):
-			logger.error("Provided libc isn't a pwnlib ELF")
+		if libc and len([x for x in elf_attrs if hasattr(libc,x)]):
+			logger.error("Provided elf isn't supported")
 
 		self.binary = ctx.binary
 		self.io = io
@@ -118,12 +119,9 @@ def unhexdump(name,delim):
 
 	if dn3_exists(deathnote):
 
-		data = reu(delim)
+		data = x2str(reu(delim))
 		f = open("/tmp/raw_hex","w+")
 		f.write(data)
 		f.close()
 		os.system(f"xxd -r /tmp/raw_hex > {name}", cwd=os.gewcwd())
-		exe = ELF(name)
-		ctx.binary = exe
-		deathnote.binary = exe
-		return exe
+		return name

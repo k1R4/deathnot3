@@ -3,3 +3,4 @@ from dn3.l1ght.context import *
 from dn3.l1ght.pipe import *
 from dn3.l1ght.sock import *
 from dn3.l1ght.debug import *
+from dn3.l1ght.elf import *
