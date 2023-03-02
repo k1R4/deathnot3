@@ -15,22 +15,14 @@ class SymDict(object):
         if key == "_parent":
             return object.__getattribute__(self,key)
         else:
-            return object.__getattribute__(self,"_parent")._address + object.__getattribute__(self,key)
+            return object.__getattribute__(self,"_parent").address - object.__getattribute__(self,"_parent")._address + object.__getattribute__(self,key)
         
     def __getitem__(self,key):
-        return object.__getattribute__(self,"_parent")._address + object.__getattribute__(self,key)
+        return object.__getattribute__(self,"_parent").address - object.__getattribute__(self,"_parent")._address + object.__getattribute__(self,key)
 
 
 
 class ELF():
-
-
-    def __setattr__(self, key, value):
-        if key == "address":
-            self._address = value
-            self.__dict__[key] = value
-        else:
-            self.__dict__[key] = value
 
 
     def __init__(self,path):
@@ -38,27 +30,28 @@ class ELF():
         if not path.startswith("/"):
             path = "%s/%s" % (os.getcwd(),path)
 
-        self._path = path
-        self._arch = find_arch(self._path)
+        self.path = path
         self.address = 0
 
-        if not check_ELF(self._path):
+        if not check_ELF(self.path):
             logger.error("Invalid ELF file!")
+
+        self._arch = find_arch(self.path)
 
         if not self._arch:
             logger.error("Architecture not supported!")
 
-        self._fd = open(self._path,"rb")
+        self._fd = open(self.path,"rb")
         self._elf = ELFFile(self._fd)
         self._sections = [ self._elf.get_section(i) for i in range(self._elf.num_sections()) ]
         self._sec_addrs = self._get_sec_addrs()
 
-        self.address = self._sec_addrs[".text"]
-        self._address = 0
+        self.address = 0
+        self._address = self._sec_addrs[".text"]
         self.symbols = SymDict(self)
 
         self._get_symbols()
-        logger.info("Loaded ELF : %s%s%s" % (BOLD,self._path.split("/")[-1],END))
+        logger.info("Loaded ELF : %s%s%s" % (BOLD,self.path.split("/")[-1],END))
 
 
     def _get_sec_addrs(self):
