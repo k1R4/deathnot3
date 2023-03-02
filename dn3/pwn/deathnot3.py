@@ -28,7 +28,7 @@ class DeathNot3():
 		if io and len([x for x in pipe_attrs if hasattr(io,x)]) != len(pipe_attrs):
 			logger.error("Provided pipe isn't supported")
 
-		if libc and len([x for x in elf_attrs if hasattr(libc,x)]):
+		if libc and len([x for x in elf_attrs if hasattr(libc,x)]) != len(elf_attrs):
 			logger.error("Provided elf isn't supported")
 
 		self.binary = ctx.binary
