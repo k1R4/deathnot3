@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name='dn3',
-    version='1.1.1',
+    version='1.2.0',
     description='',
     long_description=long_description,
     long_description_content_type='text/markdown',

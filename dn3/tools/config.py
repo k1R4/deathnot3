@@ -34,7 +34,9 @@ class Config():
                           "gdbport" : "1337", 
                           "timeout" : "800",
                           "terminal": "tmux new-window"}
-        self._thread = Thread(target=self.read(),args=(self,))
+        self._thread = Thread(target=self.read)
+        self._thread.daemon = True
+        self._thread.start()
 
 
     def update(self):

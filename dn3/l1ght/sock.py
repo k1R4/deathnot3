@@ -5,15 +5,13 @@ from dn3.tools.config import cfg
 from dn3.misc.utils import msleep
 from logging import getLogger
 import socket
-import os
-import fcntl
 
 logger = getLogger(__name__)
 
 
-class sock(pipe):
+class sock(BufferedPipe):
 
-    def __init__(self, host, port=None, timeout=int(cfg.timeout)):
+    def __init__(self, host, port=None):
 
         try:
             if host.startswith("nc "):
@@ -28,17 +26,12 @@ class sock(pipe):
 
         self._host = host
         self._port = port
-        self._timeout = timeout
 
         try:
             self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._sock.connect((self._host, self._port))
         except:
-            logger.error("Unabled to connect!")
-
-        fd = self._sock.fileno()
-        flags = fcntl.fcntl(fd, fcntl.F_GETFL)
-        fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+            logger.error("Unable to connect!")
 
         super().__init__()
 
@@ -46,26 +39,19 @@ class sock(pipe):
         ctx.io = self
 
 
-    def _read(self,n):
+    def _read(self,n,timeout=int(cfg.timeout)):
         if not self._sock:
             logger.error("Socket closed!")
-        blocked = 0
-        while True:
-            try:
-                x = self._sock.recv(n)
-                if not x:
-                    raise Exception
-                else:
-                    return x
-            except BlockingIOError:
-                blocked += 1
-                if blocked <= 100:
-                    msleep(self._timeout//100)
-                    continue
-                else:
-                    logger.error("Connection timed out!")
-            except:
-                logger.error("Socket closed unexpectedly!")
+
+        self._sock.settimeout(timeout/1000)
+        try:
+            x = self._sock.recv(n)
+            return x
+        except TimeoutError:
+            return b""
+        except ConnectionAbortedError:
+            self.kill()
+            logger.error("Connection reset!")
 
 
     def _write(self,x):
@@ -77,56 +63,27 @@ class sock(pipe):
             logger.error("Socket closed unexpectedly!")
 
 
-    def recvall(self):
-        x = b""
-        t = None
-        blocked = 0
-        while True:
-            try:
-                t = self._sock.recv(1)
-                if not t:
-                    raise Exception
-                else:
-                    x += t
-            except BlockingIOError:
-                blocked += 1
-                if blocked <= 100:
-                    msleep(self._timeout//100)
-                    continue
-                else:
-                    break
-            except:
-                break
-
-        if ctx.log == DEBUG:
-            IO_debug(x)
-
-        if ctx.mode == str:
-            x = bytes2str(x)
-        
-        return x
-
-
     def kill(self):
+        self._run_thread = False
+        self._thread.join()
         self._sock.close()
         self._sock = None
-        logger.error("Connection closed to %s:%s" % (self._host,self._port))
+        logger.info("Connection closed to %s:%s" % (self._host,self._port))
 
 
     def interactive(self):
-
-        ctx.mode = bytes
-        print(self.recvall().decode(), flush=True)
+        self._is_interactive = True
+        ctx.log = INFO
+        self._lock.acquire()
+        print(self._buf.decode(),flush=True,end="")
+        self._lock.release()
         while True:
             try:
                 print("%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
                 self.sendline(input())
-                print(self.recvall().decode(), flush=True)
+                msleep(200)
+                continue
             except:
-                return self.kill()
-
-
-    def settimeout(self,n):
-        self._timeout = n
+                break
 
 remote = sock
