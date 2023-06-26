@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from setuptools import setup, find_packages
+from setuptools import setup
 from io import open
 
 with open("README.md", "r", encoding="utf-8") as f:
@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name='dn3',
-    version='1.1.1',
+    version='1.2.1',
     description='',
     long_description=long_description,
     long_description_content_type='text/markdown',

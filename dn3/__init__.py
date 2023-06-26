@@ -6,6 +6,8 @@ from dn3.l1ght import *
 from dn3.crypto import *
 from logging import getLogger, StreamHandler, Formatter, INFO, WARNING, ERROR
 from sys import exit, stderr
+from signal import signal, SIGINT
+from os import _exit
 
 def cli():
     CLIHandler()

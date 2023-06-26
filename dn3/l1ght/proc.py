@@ -15,7 +15,7 @@ import sys
 logger = getLogger(__name__)
 
 
-class proc(pipe):
+class proc(BufferedPipe):
 
 
     def __init__(self,cmd,env=None):
@@ -61,15 +61,15 @@ class proc(pipe):
         logger.info("Spawned process %s with PID: %s%d%s" % (self._cmd.split()[0],BOLD,self._pid,END))
         ctx.io = self
 
-
-    def _read(self,n):
+    def _read(self,n,timeout=-1):
         if not self._process:
             logger.error("Process Ended!")
-        x = b""
-        while True:
+        while timeout:
+            x = b""
             x = self._process.stdout.read(n)
             if not x and self._poll():
                 msleep(1)
+                timeout -= 1
             else:
                 break
         return x
@@ -78,37 +78,6 @@ class proc(pipe):
     def _write(self,x):
         self._process.stdin.write(x)
         self._process.stdin.flush()  
-
-
-    def recvall(self):
-        x = b""
-        t = None
-        blocked = 0
-        while True:
-            try:
-                t = self._process.stdout.read(1)
-                if not t and blocked < 5:
-                    blocked += 1
-                    msleep(5)
-                elif blocked >= 5:
-                    break
-                else:
-                    x += t
-                    blocked = 0
-                    t = None
-            except:
-                break
-
-        if not x:
-            self._poll()
-
-        if ctx.log == DEBUG:
-            IO_debug(x)
-
-        if ctx.mode == str:
-            x = bytes2str(x)
-        
-        return x
 
 
     def _poll(self):
@@ -126,6 +95,8 @@ class proc(pipe):
     def kill(self):
         if not self._process:
             return
+        if self._thread.is_alive():
+            self._thread.join()
         self._process.terminate()
         self._process = None
         logger.info("Process %s with PID: %d was killed!" % (self._cmd.split()[0], self._pid))
@@ -133,26 +104,20 @@ class proc(pipe):
 
     def interactive(self):
 
-        ctx.mode = bytes
-        x = self.recvall()
-        try:
-            print(x.decode(), flush=True)
-        except:
-            print(x2str(x), flush=True)
+        ctx.log = INFO
+        print(self._buf.decode(),flush=True,end="")
+        self._thread.start()
+
         while True:
             if self._poll():
                 try:
-                    print("%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
+                    print("\r%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
                     self.sendline(input())
                     if self._poll():
-                        x = self.recvall()
-                        try:
-                            print(x.decode(), flush=True)
-                        except:
-                            print(x2str(x), flush=True)
+                        msleep(10)
+                        continue
                 except:
-                    self.kill()
-                    return
+                    break
             else:
                 break
 

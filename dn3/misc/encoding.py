@@ -91,6 +91,13 @@ def p16(x):
 		logger.error("%s provided, int expected!" % type(x))
 
 
+def p8(x):
+	if isinstance(x,int):
+		return chr(x&0xff)
+	else:
+		logger.error("%s provided, int expected!" % type(x))
+
+
 def upk(x):
 	if isinstance(x,str):
 		return unpack("<Q",str2bytes((x[:8]).ljust(8,"\x00")))[0]
