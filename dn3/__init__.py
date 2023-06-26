@@ -32,9 +32,3 @@ handler.setFormatter(LoggerFormatter("%(message)s"))
 logger = getLogger(__name__)
 logger.setLevel(INFO)
 logger.addHandler(handler)
-
-def signal_handler(*args):
-    logger.error("Interrupted!")
-    exit(-1)
-
-signal(SIGINT,signal_handler)

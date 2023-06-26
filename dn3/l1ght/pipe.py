@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from dn3.tools.config import cfg
 from dn3.l1ght.context import ctx
 from dn3.misc.encoding import *
 from dn3.misc.colors import *
@@ -12,8 +13,6 @@ logger = getLogger(__name__)
 
 DEBUG = 1
 INFO = 0
-
-IOs = []
 
 
 def IO_debug(x, mode="Received"):
@@ -59,12 +58,8 @@ class BufferedPipe():
     def __init__(self):
         self._buf = b""
         self._max_buf = 4096
-        self._is_interactive = False
-        self._run_thread = True
-        self._lock = Lock()
-        self._thread = Thread(target=self._reader)
+        self._thread = Thread(target=self._interactive_output)
         self._thread.daemon = True
-        self._thread.start()
 
     @abstractmethod
     def kill():
@@ -83,39 +78,41 @@ class BufferedPipe():
         pass
 
 
-    def _reader(self):
+    def _interactive_output(self):
 
-        while self._run_thread:
-            if len(self._buf) < self._max_buf:
-                x = b""
-                self._lock.acquire()
-                x = self._read(self._max_buf-len(self._buf),timeout=5)
+        if hasattr(self, "_sock"):
+            timeout = int(cfg.timeout)
+        else:
+            timeout = 0.1
+
+        while True:
+                x = self._read(4096,timeout)
                 if x:
-                    if self._is_interactive:
-                        print(x.decode(),end="",flush=True)
-                    else:
-                        self._buf += x
-                    self._lock.release()
-                    msleep(1)
-                    continue
-                else:
-                    self._lock.release()
-                    msleep(1)
-                    continue
+                    try:
+                        x = x.decode()
+                    except:
+                        x = bytes2str(x)
+                    print("\r"+x,end="",flush=True)
+                    print("%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
 
-    def recv(self, n, timeout=1000):
+
+    def recv(self, n, timeout=None):
         
-        x = b""
+        if n > 4096:
+            logger.error("Can only recv 4096 bytes at a time")
 
-        self._lock.acquire()
+        x = b""
+        
         if n > len(self._buf):
             x += self._buf
-            self._buf = b""
-            x += self._read(n-len(x),timeout)
+            if not timeout:
+                self._buf = self._read(self._max_buf)
+            else:
+                self._buf = self._read(self._max_buf,timeout)
+            n -= len(x)
 
-        else:
-            x += self._buf[:n]
-            self._buf = self._buf[n:]
+        x += self._buf[:n]
+        self._buf = self._buf[n:]
 
         if len(x) != n:
             logger.error("EOF!")
@@ -126,7 +123,6 @@ class BufferedPipe():
         if ctx.mode == str:
             x = bytes2str(x)
 
-        self._lock.release()
         return x
 
     
@@ -138,14 +134,21 @@ class BufferedPipe():
         if not x:
             logger.error("Invalid delimiter length!")
 
-        mode,log = ctx.mode,ctx.log
-        ctx.mode,ctx.log = bytes,INFO
-        while True:
-            k = self.recv(1)
-            t += k
-            if t.find(x) != -1:
-                break
-        ctx.mode,ctx.log = mode,log
+        n = self._buf.find(x)
+        if n == -1:
+            t = self._buf
+            self._buf = b""
+            while True:
+                k = self._read(1)
+                if not k:
+                    logger.error("EOF!")
+                t += k
+                if t.find(x) != -1:
+                    break
+
+        else:
+            t = self._buf[:n+len(x)]
+            self._buf = self._buf[n+len(x):]
         
         if ctx.log == DEBUG:
             IO_debug(t)
@@ -160,7 +163,7 @@ class BufferedPipe():
         return self.recvuntil(b"\n")
 
     def recvall(self):
-        self._lock.acquire()
+
         x = self._buf
         self._buf = b""
 
@@ -170,7 +173,6 @@ class BufferedPipe():
         if ctx.mode == str:
             x = bytes2str(x)
 
-        self._lock.release()
         return x
 
     def send(self,x):

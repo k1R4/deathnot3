@@ -1,7 +1,7 @@
 # flake8: noqa
 #!/usr/bin/env python3
 from dn3 import *
-from pwn import ELF, asm, disasm
+from pwn import asm, disasm
 
 exe = ELF("BINARY")
 l{

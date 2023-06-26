@@ -47,7 +47,7 @@ class sock(BufferedPipe):
         try:
             x = self._sock.recv(n)
             return x
-        except TimeoutError:
+        except socket.timeout:
             return b""
         except ConnectionAbortedError:
             self.kill()
@@ -64,24 +64,24 @@ class sock(BufferedPipe):
 
 
     def kill(self):
-        self._run_thread = False
-        self._thread.join()
+        if self._thread.is_alive():
+            self._thread.join()
         self._sock.close()
         self._sock = None
         logger.info("Connection closed to %s:%s" % (self._host,self._port))
 
 
     def interactive(self):
-        self._is_interactive = True
+
         ctx.log = INFO
-        self._lock.acquire()
         print(self._buf.decode(),flush=True,end="")
-        self._lock.release()
+        self._thread.start()
+
         while True:
             try:
-                print("%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
+                print("\r%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
                 self.sendline(input())
-                msleep(200)
+                msleep(10)
                 continue
             except:
                 break

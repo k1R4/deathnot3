@@ -61,7 +61,7 @@ class proc(BufferedPipe):
         logger.info("Spawned process %s with PID: %s%d%s" % (self._cmd.split()[0],BOLD,self._pid,END))
         ctx.io = self
 
-    def _read(self,n,timeout=1):
+    def _read(self,n,timeout=-1):
         if not self._process:
             logger.error("Process Ended!")
         while timeout:
@@ -95,23 +95,23 @@ class proc(BufferedPipe):
     def kill(self):
         if not self._process:
             return
-        self._run_thread = False
-        self._thread.join()
+        if self._thread.is_alive():
+            self._thread.join()
         self._process.terminate()
         self._process = None
         logger.info("Process %s with PID: %d was killed!" % (self._cmd.split()[0], self._pid))
 
 
     def interactive(self):
-        self._is_interactive = True
+
         ctx.log = INFO
-        self._lock.acquire()
         print(self._buf.decode(),flush=True,end="")
-        self._lock.release()
+        self._thread.start()
+
         while True:
             if self._poll():
                 try:
-                    print("%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
+                    print("\r%s%sdn3>%s " % (YELLOW,BOLD,END), end="", flush=True)
                     self.sendline(input())
                     if self._poll():
                         msleep(10)
